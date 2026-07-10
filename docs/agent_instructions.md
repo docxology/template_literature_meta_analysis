@@ -20,7 +20,7 @@ The committed `data/fixtures/modafinil_corpus.jsonl` is a synthetic offline fixt
 
 ## Rule 5: Output Is Disposable
 
-Never hand-edit `output/`. To change generated manuscript text, edit source manuscript sections, config, or `src/manuscript/variables.py` and rerun `scripts/05_inject_variables.py`. To change figures or data, edit the relevant `src/` producer and rerun the stage.
+Never hand-edit `output/`. To change generated manuscript text, edit source manuscript sections, config, or `src/manuscript/variables/` and rerun `scripts/05_inject_variables.py`. To change figures or data, edit the relevant `src/` producer and rerun the stage.
 
 ## Rule 6: Use Generated Facts
 
@@ -38,6 +38,6 @@ uv run python projects/templates/template_literature_meta_analysis/scripts/05_in
 For docs/manifest changes, also run:
 
 ```bash
-uv run python scripts/check_template_drift.py --strict --project templates/template_literature_meta_analysis
-uv run python scripts/generate_exemplar_roster_doc.py --check
+uv run python scripts/audit/check_template_drift.py --strict --project templates/template_literature_meta_analysis
+uv run python scripts/docgen/exemplar_roster.py --check
 ```

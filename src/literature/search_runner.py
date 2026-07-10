@@ -11,6 +11,7 @@ from typing import Callable
 from config_loader import load_search_config
 from literature.corpus import Corpus
 from literature.models import Paper
+from literature.engine_dispatch import dispatch_ordered
 from literature.query_router import QueryRouter
 
 
@@ -265,6 +266,19 @@ def run_literature_search(
         engines = {}
         cfg = {}
 
+    if getattr(args, "query", None) is None:
+        q = cfg.get("query") if isinstance(cfg, dict) else None
+        if not q and config_path.exists():
+            import yaml
+
+            raw = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+            search_block = raw.get("project_config", {}).get("search", {})
+            q = search_block.get("query") or search_block.get("term")
+        if q:
+            args.query = str(q)
+        else:
+            raise ValueError("Search query missing: pass --query or set project_config.search.query/term in config")
+
     # Term-driven fallback: when no explicit per-engine queries / keywords are
     # configured, derive them from the single search term. This keeps the
     # template fully domain-agnostic — no hardcoded default queries are needed.
@@ -333,6 +347,7 @@ def run_literature_search(
     )
 
     def run_arxiv() -> None:
+        """Run arxiv."""
         if args.skip_arxiv:
             return
         arxiv_search = _arxiv_search_fn(arxiv_base_url, fast=fast_api)
@@ -356,6 +371,7 @@ def run_literature_search(
         )
 
     def run_semantic_scholar() -> None:
+        """Run semantic scholar."""
         if args.skip_s2:
             return
         s2_search = _semantic_scholar_search_fn(semantic_scholar_base_url, fast=fast_api)
@@ -371,6 +387,7 @@ def run_literature_search(
             sources_searched.append(result)
 
     def run_openalex() -> None:
+        """Run openalex."""
         if args.skip_openalex:
             return
         openalex_search = _openalex_search_fn(openalex_base_url, fast=fast_api)
@@ -386,6 +403,7 @@ def run_literature_search(
             sources_searched.append(result)
 
     def run_crossref() -> None:
+        """Run crossref."""
         crossref_on = engines.get("crossref", True) and not getattr(args, "skip_crossref", False)
         if not crossref_on or (crossref_base_url is None and fast_api):
             return
@@ -395,6 +413,7 @@ def run_literature_search(
             sources_searched.append(result)
 
     def run_pubmed() -> None:
+        """Run pubmed."""
         pubmed_on = engines.get("pubmed", True) and not getattr(args, "skip_pubmed", False)
         if not pubmed_on or (pubmed_esearch_url is None and fast_api):
             return
@@ -404,6 +423,7 @@ def run_literature_search(
             sources_searched.append(result)
 
     def run_sovietrxiv() -> None:
+        """Run sovietrxiv."""
         sovietrxiv_cfg = cfg.get("sovietrxiv", {}) if isinstance(cfg, dict) else {}
         if not engines.get("sovietrxiv", True) or getattr(args, "skip_sovietrxiv", False):
             return
@@ -422,6 +442,7 @@ def run_literature_search(
             sources_searched.append(result)
 
     def run_chinarxiv() -> None:
+        """Run chinarxiv."""
         chinarxiv_cfg = cfg.get("chinarxiv", {}) if isinstance(cfg, dict) else {}
         if not engines.get("chinarxiv", True) or getattr(args, "skip_chinarxiv", False):
             return
@@ -448,10 +469,7 @@ def run_literature_search(
         "chinarxiv": run_chinarxiv,
     }
 
-    for source_key in route.source_order:
-        runner = source_runners.get(source_key)
-        if runner is not None:
-            runner()
+    dispatch_ordered(route.source_order, source_runners)
 
     apply_relevance_filter(corpus, relevance_keywords, logger)
 

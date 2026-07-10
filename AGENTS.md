@@ -12,7 +12,7 @@ Public literature meta-analysis exemplar for systematic/scoping reviews, bibliom
 | Bibliometrics, text analytics, embeddings, topics | `src/analysis/` |
 | Optional assertion extraction and nanopublications | `src/knowledge_graph/` |
 | Figure styling and generation | `src/visualization/` |
-| Manuscript tokens and hydrated copies | `src/manuscript/variables.py` and `scripts/05_inject_variables.py` |
+| Manuscript tokens and hydrated copies | `src/manuscript/variables/` and `scripts/05_inject_variables.py`, `scripts/06_fulltext_assessment.py`, `scripts/07_literature_evaluation.py`, `scripts/08_deep_research_dispatch.py` |
 | Open follow-up scope | `TODO.md` |
 | Live public roster/count facts | `../../../docs/_generated/active_projects.md` and `../../../docs/_generated/COUNTS.md` |
 
@@ -28,7 +28,7 @@ Generated `output/` files are disposable. Do not hand-edit `output/manuscript/`,
 | Knowledge graph / LLM extraction | `src/knowledge_graph/AGENTS.md` | Optional, resumable, and network/local-LLM gated. |
 | Figures | `src/visualization/AGENTS.md` | Headless matplotlib, colorblind palette, CLI DPI propagation. |
 | Manuscript tokens | `src/manuscript/AGENTS.md` and `manuscript/AGENTS.md` | Variables come from generated JSON outputs and config. |
-| Project scripts | `scripts/AGENTS.md` | Thin orchestrators for stages 01-06. |
+| Project scripts | `scripts/AGENTS.md` | Thin orchestrators for stages 01-08. |
 | Tests | `tests/AGENTS.md` | Real data, temp files, local HTTP servers, no mocks. |
 | Human docs | `docs/README.md` | Project-local architecture, testing, style, and output docs. |
 
@@ -51,9 +51,9 @@ Stage 01 (`01_literature_search.py`) is the live/network retrieval path. Use it 
 
 ```bash
 uv run pytest projects/templates/template_literature_meta_analysis/tests/   --cov=projects/templates/template_literature_meta_analysis/src --cov-fail-under=90
-uv run python scripts/check_template_drift.py --strict --project templates/template_literature_meta_analysis
-uv run python scripts/generate_exemplar_roster_doc.py --check
-uv run python scripts/check_tracked_projects.py
+uv run python scripts/audit/check_template_drift.py --strict --project templates/template_literature_meta_analysis
+uv run python scripts/docgen/exemplar_roster.py --check
+uv run python scripts/audit/check_tracked_projects.py
 ```
 
 Run the focused stage tests for the part you changed. For broad source/doc changes, run the project coverage gate plus the repo public-scope drift and guard checks.

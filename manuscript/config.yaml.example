@@ -16,11 +16,10 @@ paper:
   date: "" # Auto-generated
 
 authors:
-  - name: "Daniel Ari Friedman"
-    orcid: "0000-0001-6232-9096"
-    email: "daniel@activeinference.institute"
-    affiliations:
-      - "Active Inference Institute"
+  - name: "Your Name"
+    orcid: "0000-0000-0000-0000"
+    email: "you@example.org"
+    affiliation: "Your Institution"
     corresponding: true
 
 publication:

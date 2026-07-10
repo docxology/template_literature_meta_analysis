@@ -9,7 +9,7 @@ uv run python projects/templates/template_literature_meta_analysis/scripts/05_in
 rg "\{\{" projects/templates/template_literature_meta_analysis/output/manuscript
 ```
 
-If a token remains, add it to `src/manuscript/variables.py` and cover it in `tests/test_variables.py`.
+If a token remains, add it to `src/manuscript/variables/compute.py` and cover it in `tests/test_variables.py`.
 
 ## Missing `corpus.jsonl`
 
@@ -71,7 +71,7 @@ Install the headless Chrome dependency used by Mermaid rendering, then rerun:
 
 ```bash
 npx --yes puppeteer browsers install chrome-headless-shell
-uv run python scripts/03_render_pdf.py --project templates/template_literature_meta_analysis
+uv run python scripts/pipeline/stage_03_render.py --project templates/template_literature_meta_analysis
 ```
 
 ## Tests Collect Zero Files

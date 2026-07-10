@@ -45,7 +45,7 @@ Manuscript source files use double-brace placeholders of the form `{{<NAME>}}` w
 - `topics.json` → `{{NUM_TOPICS}}`, `{{NUM_VOCAB_FEATURES}}`
 - Hardcoded → `{{NUM_FIGURES}}` (= 16)
 
-All computation lives in `src/manuscript/variables.py`. Do not add variables to scripts directly.
+All computation lives in `src/manuscript/variables/` (see `compute.py` and `extractors/`). Do not add variables to scripts directly.
 
 ## Section Ordering Conventions
 
@@ -57,3 +57,5 @@ All computation lives in `src/manuscript/variables.py`. Do not add variables to 
 ## config.yaml as Single Source of Truth
 
 Add new hypotheses, subfield keywords, or search queries only in `config.yaml`. The Python modules load configuration via `configure_hypotheses()` and `configure_subfields()` at runtime — no Python source edits needed.
+
+Computed table tokens include `{{SUBFIELD_TABLE}}` and `{{HYPOTHESIS_TABLE}}` from `src/manuscript/variables/`.

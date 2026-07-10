@@ -36,9 +36,24 @@ from visualization.hypothesis_charts import (
     plot_evidence_timeline,
     plot_hypothesis_dashboard,
 )
-from visualization.style import VIZ_CONFIG, apply_visual_style
+from visualization.style import VIZ_CONFIG, apply_visual_style, load_viz_labels_from_config
 from visualization.temporal_plots import plot_growth_curve, plot_subfield_timeline
 
+
+FIGURE_SPECS: tuple[str, ...] = (
+    "subfield_classification.json",
+    "temporal_analysis.json",
+    "subfield_timeline.json",
+    "citation_network.json",
+    "hypothesis_scores.json",
+    "hypothesis_trends.json",
+    "topics.json",
+    "tfidf_data.json",
+    "assertion_summary.json",
+    "descriptive_stats.json",
+    "entities.json",
+    "embedding_analysis.json",
+)
 
 FIGURE_CAPTIONS = {
     "field_summary.png": "High-level overview of retrieved literature and subfield counts.",
@@ -76,6 +91,7 @@ def _load_json(path: Path, logger: logging.Logger) -> dict:
 def generate_all_figures(args: argparse.Namespace) -> list[str]:
     """Generate figures from JSON inputs; return list of output paths."""
     logger = logging.getLogger("generate_figures")
+    load_viz_labels_from_config(Path(__file__).resolve().parents[2])
     matplotlib.rcParams["savefig.dpi"] = args.dpi
     VIZ_CONFIG["dpi"] = args.dpi
     apply_visual_style()
@@ -130,9 +146,14 @@ def generate_all_figures(args: argparse.Namespace) -> list[str]:
         except Exception as exc:  # noqa: BLE001 -- safety net: one figure group must not abort the batch
             logger.error("Citation network figures skipped: %s", exc)
 
+    # hypothesis_dashboard.png is referenced unconditionally by
+    # manuscript/03_results_hypothesis.md, and plot_hypothesis_dashboard is
+    # explicitly designed to render a "no scores available" placeholder when
+    # given an empty mapping (offline/no-LLM default run, before the optional
+    # knowledge-graph stage has populated hypothesis_scores.json). Always call
+    # it so the figure file exists regardless of whether that data is present.
     scores_data = _load_json(input_dir / "hypothesis_scores.json", logger)
-    if scores_data:
-        generated_paths.append(str(plot_hypothesis_dashboard(scores_data, output_dir / "hypothesis_dashboard.png")))
+    generated_paths.append(str(plot_hypothesis_dashboard(scores_data, output_dir / "hypothesis_dashboard.png")))
 
     trends_data = _load_json(input_dir / "hypothesis_trends.json", logger)
     if trends_data:

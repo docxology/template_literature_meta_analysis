@@ -24,7 +24,7 @@ body file to change topics. (Verified: the only place "modafinil" appears in
 uv sync
 
 # 1. Clean-copy the exemplar to your new project name (local-only fork)
-uv run python scripts/copy_exemplar.py \
+uv run python scripts/audit/copy_exemplar.py \
   --source templates/template_literature_meta_analysis \
   --dest projects/working/my_review \
   --new-name my_review
@@ -43,14 +43,14 @@ uv run python scripts/05_inject_variables.py     # fails loudly on any unresolve
 
 # 4. Render the PDF (from the repo root)
 cd -
-uv run python scripts/03_render_pdf.py --project working/my_review
+uv run python scripts/pipeline/stage_03_render.py --project working/my_review
 ```
 
 **⚠️ Confidentiality invariant.** The repo `.gitignore` tracks **only** the public
 canonical exemplars under `projects/templates/` (see
 [`../../../docs/_generated/active_projects.md`](../../../../docs/_generated/active_projects.md)).
 Your fork under `projects/working/my_review/` is local-only and won't be pushed
-even with `git add -f` — `scripts/check_tracked_projects.py` blocks it in
+even with `git add -f` — `scripts/audit/check_tracked_projects.py` blocks it in
 `pre-push-quick`. See the root [`CLAUDE.md`](../../../../CLAUDE.md) "CONFIDENTIALITY INVARIANT".
 
 ## The single control surface: `manuscript/config.yaml`
@@ -135,7 +135,7 @@ that reads `pending` until stage 03 runs.
 
 | Stage | Script | Reads | Writes | Notes |
 |---|---|---|---|---|
-| 1 | `01_literature_search.py` | config | `output/data/corpus.jsonl` | 5-engine dispatch + cross-engine de-dup; `--clear-corpus --no-resume` for a fresh run |
+| 1 | `01_literature_search.py` | config | `output/data/corpus.jsonl` | 7-engine dispatch + cross-engine de-dup; `--clear-corpus --no-resume` for a fresh run |
 | 2 | `02_meta_analysis_pipeline.py` | corpus | subfield/temporal/tfidf/topics/citation JSON + `citation_graph.gml` | deterministic (seeded) |
 | 3 | `03_build_knowledge_graph.py` | corpus | nanopublications (JSONL + RDF/TriG), hypothesis scores | **optional** — needs Ollama; `--max-papers N` to sample |
 | 4 | `04_generate_figures.py` | stage-2/3 JSON | up to 12 PNGs in `output/figures/` | KG-dependent figures skip gracefully if 03 didn't run |
@@ -154,7 +154,7 @@ engines merges.
 | `subfield_keywords` (add/rename/remove buckets) | nothing | ✅ `{{SUBFIELD_TABLE}}` + subfield figures adapt |
 | `hypothesis_definitions` | nothing (run stage 03 for live scores) | ✅ `{{HYPOTHESIS_TABLE}}` adapts |
 | `paper.title` / `keywords` | nothing | ✅ |
-| Add a **new** computed number to the prose | add the token to `src/manuscript/variables.py::compute_variables` **and** reference `{{NEW_TOKEN}}` | ⚠️ unresolved tokens make stage 5 fail loudly |
+| Add a **new** computed number to the prose | add the token to `src/manuscript/variables/compute.py::compute_variables` **and** reference `{{NEW_TOKEN}}` | ⚠️ unresolved tokens make stage 5 fail loudly |
 | Add a **new search engine** | add a client in `src/literature/`, register it in `search_runner.py`, add an `engines:` toggle | ⚠️ code + test |
 
 ## Token discipline (why stage 5 fails loudly)
@@ -179,7 +179,7 @@ uv run pytest projects/working/my_review/tests/ --cov=projects/working/my_review
 grep -ro '{{[A-Z_0-9]*}}' projects/working/my_review/output/manuscript/ ; echo "exit=$? (1 = none found = good)"
 
 # drift checker (global template integrity)
-uv run python scripts/check_template_drift.py
+uv run python scripts/audit/check_template_drift.py
 ```
 
 ## Common friction points (and fixes)
