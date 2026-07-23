@@ -15,7 +15,7 @@ claims:
     artifact_path: manuscript/config.yaml
   - claim_id: enabled-retrieval-engine-count
     kind: number
-    value: 7
+    value: 9
     source: projects/templates/template_literature_meta_analysis/manuscript/config.yaml project_config.search.engines
     source_tier: project_config
     freshness: active
@@ -34,3 +34,17 @@ claims:
     source_tier: project_source
     freshness: active
     artifact_path: src/visualization/style.py
+  - claim_id: openalex-page-size
+    kind: number
+    value: 200
+    source: projects/templates/template_literature_meta_analysis/src/literature/openalex_client.py OPENALEX_PAGE_SIZE
+    source_tier: project_source
+    freshness: active
+    artifact_path: src/literature/openalex_client.py
+  - claim_id: hypothesis-score-lower-bound
+    kind: number
+    value: -1
+    source: projects/templates/template_literature_meta_analysis/src/knowledge_graph/hypothesis.py score_hypothesis normalized range
+    source_tier: project_source
+    freshness: active
+    artifact_path: src/knowledge_graph/hypothesis.py

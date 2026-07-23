@@ -40,6 +40,8 @@ def _normalized_element_text(element: Optional[ET.Element]) -> str:
 
 
 def _parse_pubmed_article(xml_element: ET.Element) -> Paper:
+    pmid = _normalized_element_text(xml_element.find(".//MedlineCitation/PMID")) or None
+
     title = _normalized_element_text(xml_element.find(".//Article/ArticleTitle"))
 
     abstract_segments = []
@@ -82,6 +84,7 @@ def _parse_pubmed_article(xml_element: ET.Element) -> Paper:
         authors=authors,
         year=year,
         doi=doi,
+        pmid=pmid,
         venue=venue,
     )
 
@@ -94,6 +97,7 @@ def search_pubmed(
     max_results: int = 100,
     session: Optional[requests.Session] = None,
     delay_override: Optional[Callable[[float], None]] = None,
+    efetch_batch_size: int = EFETCH_BATCH_SIZE,
 ) -> list[Paper]:
     """Process search pubmed."""
     http = session or requests.Session()
@@ -136,8 +140,8 @@ def search_pubmed(
         # overruns the server URI limit (HTTP 414). Fetch in bounded batches and
         # concatenate the parsed articles.
         papers: list[Paper] = []
-        for start in range(0, len(pmids), EFETCH_BATCH_SIZE):
-            batch = pmids[start : start + EFETCH_BATCH_SIZE]
+        for start in range(0, len(pmids), efetch_batch_size):
+            batch = pmids[start : start + efetch_batch_size]
             efetch_response = request_with_retry(
                 http,
                 "GET",

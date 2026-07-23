@@ -31,7 +31,7 @@ PAPER_FIELDS = "title,abstract,authors,year,externalIds,citationCount,venue,refe
 CITATION_FIELDS = "title,authors,year,externalIds"
 
 # Retry settings
-MAX_RETRIES = 1
+MAX_RETRIES = 3
 RETRY_BASE_SECONDS = 10.0
 
 # Pagination

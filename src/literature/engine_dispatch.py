@@ -1,4 +1,13 @@
-"""Declarative literature search engine enablement."""
+"""Declarative literature search engine enablement.
+
+Only ``dispatch_ordered`` is currently wired into ``search_runner.py``'s
+production dispatch path. ``EngineSpec``, ``ENGINE_SPECS``, and
+``engine_enabled`` are a correct, fully-tested, but not-yet-adopted
+alternative to the per-engine boolean gates ``search_runner.py`` still
+implements inline for each of the ten engines. Do not assume
+``engine_enabled`` governs current runtime behavior — verify against
+``search_runner.py`` directly.
+"""
 
 from __future__ import annotations
 
@@ -35,6 +44,9 @@ ENGINE_SPECS: tuple[EngineSpec, ...] = (
     EngineSpec("pubmed", "skip_pubmed", "pubmed"),
     EngineSpec("sovietrxiv", "skip_sovietrxiv", "sovietrxiv"),
     EngineSpec("chinarxiv", "skip_chinarxiv", "chinarxiv"),
+    EngineSpec("europepmc", "skip_europepmc", "europepmc"),
+    EngineSpec("biorxiv", "skip_biorxiv", "biorxiv"),
+    EngineSpec("medrxiv", "skip_medrxiv", "medrxiv"),
 )
 
 
@@ -46,9 +58,18 @@ def engine_enabled(
     fast_api: bool,
     url_injected: bool,
 ) -> bool:
-    """Return whether *spec* should run for this invocation."""
+    """Return whether *spec* should run for this invocation.
+
+    arXiv, Semantic Scholar, and OpenAlex always construct their search
+    function regardless of URL injection (their own clients handle the
+    hermetic-test case internally), so they skip the fast_api/injected
+    check that the other seven engines apply. All ten still honor the
+    per-engine skip flag and the `engines` config-toggle map.
+    """
     if spec.name in {"arxiv", "semantic_scholar", "openalex"}:
-        return not getattr(args, spec.skip_flag, False)
+        if getattr(args, spec.skip_flag, False):
+            return False
+        return bool(engines.get(spec.config_key, True))
     return spec.enabled(args, engines, fast_api=fast_api, injected=url_injected)
 
 

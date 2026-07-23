@@ -86,7 +86,7 @@ class TestCitation:
 
 
 class TestPaperCanonicalId:
-    """Tests for canonical_id priority: doi > arxiv > s2 > openalex > title hash."""
+    """Tests for canonical_id priority: doi > pmid > arxiv > s2 > openalex > title hash."""
 
     def test_doi_highest_priority(self):
         """DOI takes priority over all other IDs (normalized to lower-case)."""
@@ -100,6 +100,26 @@ class TestPaperCanonicalId:
         # canonical_id case-folds the DOI per ISO 26324; raw .doi is preserved.
         assert p.canonical_id == "doi:10.1162/neco_a_00912"
         assert p.doi == "10.1162/NECO_a_00912"
+
+    def test_doi_wins_over_pmid(self):
+        """DOI takes priority over pmid when both are present."""
+        p = Paper(title="Active Inference", doi="10.1162/NECO_a_00912", pmid="12345678")
+        assert p.canonical_id == "doi:10.1162/neco_a_00912"
+
+    def test_pmid_second_priority(self):
+        """pmid used when DOI is absent, and wins over arxiv_id."""
+        p = Paper(title="Active Inference", pmid="12345678", arxiv_id="1709.02341")
+        assert p.canonical_id == "pmid:12345678"
+
+    def test_pmid_collapses_shared_records_without_doi(self):
+        """Two records sharing a pmid (no doi) collapse to the same canonical_id.
+
+        This is what lets a Corpus de-duplicate two engine responses for the
+        same underlying PubMed record even when neither carries a DOI.
+        """
+        from_pubmed = Paper(title="Predictive processing", pmid="12345678")
+        from_other_engine = Paper(title="Predictive processing (reprint)", pmid="12345678")
+        assert from_pubmed.canonical_id == from_other_engine.canonical_id == "pmid:12345678"
 
     def test_doi_normalized_for_cross_engine_merge(self):
         """Case/prefix-variant DOIs from different engines map to ONE canonical_id.
@@ -249,6 +269,7 @@ class TestPaperConstruction:
             authors=[Author(name="Author")],
             year=2020,
             doi="10.1234/test",
+            pmid="12345678",
             arxiv_id="2001.00000",
             s2_id="s2id",
             openalex_id="oaid",
@@ -259,12 +280,22 @@ class TestPaperConstruction:
             pdf_url="https://arxiv.org/pdf/2001.00000.pdf",
             is_open_access=True,
         )
-        assert p.metadata_completeness == 13  # All 11 original + pdf_url + is_open_access
+        assert p.metadata_completeness == 14  # All 11 original + pmid + pdf_url + is_open_access
 
     def test_metadata_completeness_partial(self):
         """Paper with some fields populated has intermediate completeness."""
         p = Paper(title="Test", abstract="Has abstract", year=2020, doi="10.1234/t")
         assert p.metadata_completeness == 3  # abstract, year, doi
+
+    def test_europe_pmc_source_does_not_imply_preprint(self):
+        """Europe PMC indexes journal articles as well as preprints."""
+        paper = Paper(
+            title="Peer-reviewed Europe PMC record",
+            doi="10.1000/journal",
+            venue="Journal of Reliable Results",
+            full_text_source="europepmc",
+        )
+        assert paper.is_preprint is False
 
 
 # ---------------------------------------------------------------------------
@@ -337,6 +368,7 @@ class TestPaperSerialization:
             "authors",
             "year",
             "doi",
+            "pmid",
             "arxiv_id",
             "s2_id",
             "openalex_id",
@@ -347,6 +379,7 @@ class TestPaperSerialization:
             "pdf_url",
             "is_open_access",
             "full_text_source",
+            "keywords",
         }
         assert set(data.keys()) == expected_keys
 
@@ -427,6 +460,29 @@ class TestPaperSerialization:
         assert p.pdf_url is None
         assert p.is_open_access is None
         assert p.full_text_source is None
+
+    def test_from_dict_backward_compatible_missing_pmid(self):
+        """from_dict handles legacy JSONL rows written before pmid existed."""
+        data = {
+            "title": "Pre-pmid Paper",
+            "abstract": "Legacy record",
+            "authors": [],
+            "year": 2018,
+            "doi": "10.1234/legacy",
+        }
+        p = Paper.from_dict(data)
+        assert p.title == "Pre-pmid Paper"
+        assert p.pmid is None
+        assert p.canonical_id == "doi:10.1234/legacy"
+
+    def test_round_trip_pmid(self):
+        """pmid survives a to_dict/from_dict round-trip."""
+        original = Paper(title="PubMed Paper", pmid="12345678")
+        data = original.to_dict()
+        assert data["pmid"] == "12345678"
+        restored = Paper.from_dict(data)
+        assert restored.pmid == "12345678"
+        assert restored.canonical_id == original.canonical_id == "pmid:12345678"
 
     def test_fulltext_fields_default_none(self):
         """New full-text fields default to None when not specified."""

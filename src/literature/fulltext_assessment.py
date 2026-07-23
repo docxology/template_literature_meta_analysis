@@ -1,4 +1,34 @@
-"""Full-text availability assessment for literature corpora."""
+"""Full-text availability assessment for literature corpora.
+
+Pure (no-network, no-filesystem) summary of how much full text a corpus
+could yield from its metadata alone — the "potential" view. The
+"realized" view (how much text was actually downloaded and extracted to
+disk) is the sibling function
+:func:`literature.fulltext_download.assess_fulltext_extraction`, which
+is filesystem-aware and kept separate so this function's pure
+no-side-effect contract is not disturbed.
+
+Produces a JSON-serializable dict with four dimensions:
+
+1. **Abstract coverage** — how many papers have an abstract (the minimum
+   text for analysis).
+2. **Open-access status** — how many papers are OA / not OA / unknown.
+3. **PDF availability** — how many papers have a direct ``pdf_url`` and
+   what domains host them.
+4. **Identifier coverage** — how many papers have each type of persistent
+   identifier (DOI, arXiv, S2, OpenAlex), which determines which engines
+   can contribute to cross-engine dedup.
+
+And a fifth dimension, **fulltext format**, that classifies each paper by
+what kind of full text is available: LaTeX source + PDF (arXiv papers),
+publisher PDF only, or no fulltext at all. This maps directly to the
+degradation path in the reproducibility assessment: papers with no
+fulltext cannot have workflow graphs extracted.
+
+Mirrors :mod:`literature.evaluation` in convention: a pure function over
+a :class:`~literature.corpus.Corpus`, called from
+``scripts/06_fulltext_assessment.py``.
+"""
 
 from __future__ import annotations
 
@@ -8,9 +38,65 @@ from urllib.parse import urlparse
 from literature.corpus import Corpus
 from literature.models import Paper
 
+# Known OA providers and their URL patterns for provider classification.
+_PROVIDER_PATTERNS: dict[str, tuple[str, ...]] = {
+    "arxiv": ("arxiv.org",),
+    "biorxiv": ("biorxiv.org", "medrxiv.org"),
+    "europepmc": ("europepmc.org",),
+    "pubmed_central": ("ncbi.nlm.nih.gov/pmc",),
+    "unpaywall": ("unpaywall.org",),
+    "zenodo": ("zenodo.org",),
+    "figshare": ("figshare.com",),
+    "osf": ("osf.io",),
+    "github": ("github.com",),
+    "doi": ("doi.org",),
+}
+
+
+def _classify_provider(paper: Paper) -> str | None:
+    """Classify the provider of a directly resolvable PDF, if one exists.
+
+    A DOI or retrieval-engine provenance alone does not identify an available
+    full-text provider. Requiring ``pdf_url`` keeps this metric from counting
+    metadata-only Europe PMC/publisher records as realized provider coverage.
+    """
+    if not paper.pdf_url:
+        return None
+    url = (paper.pdf_url or "").lower()
+    for provider, patterns in _PROVIDER_PATTERNS.items():
+        if any(p in url for p in patterns):
+            return provider
+    if paper.full_text_source:
+        return str(paper.full_text_source)
+    if paper.is_preprint:
+        return "preprint"
+    if paper.doi:
+        return "publisher"
+    return "unknown"
+
+
+def _provider_breakdown(papers: list[Paper]) -> dict[str, int]:
+    """Count papers with direct PDF URLs by full-text provider."""
+    counts: Counter[str] = Counter()
+    for paper in papers:
+        provider = _classify_provider(paper)
+        if provider is not None:
+            counts[provider] += 1
+    return dict(counts.most_common())
+
 
 def assess_corpus(corpus: Corpus) -> dict:
-    """Assess full-text availability across *corpus*."""
+    """Assess full-text availability across *corpus*.
+
+    Args:
+        corpus: The corpus to assess.
+
+    Returns:
+        A dict with keys ``total_papers``, ``abstract_coverage``,
+        ``open_access``, ``pdf_availability``, ``fulltext_source_breakdown``,
+        ``pdf_domain_breakdown``, ``identifier_coverage``, and
+        ``fulltext_format``. Never raises on missing fields.
+    """
     papers: list[Paper] = corpus.papers
     total = len(papers)
 
@@ -22,7 +108,8 @@ def assess_corpus(corpus: Corpus) -> dict:
 
     source_counter: Counter[str] = Counter()
     for paper in papers:
-        source_counter[paper.full_text_source or "none"] += 1
+        source = paper.full_text_source if paper.pdf_url else None
+        source_counter[source or "none"] += 1
 
     domain_counter: Counter[str] = Counter()
     for paper in papers:
@@ -33,7 +120,7 @@ def assess_corpus(corpus: Corpus) -> dict:
                 domain_counter["unknown"] += 1
 
     def pct(n: int) -> float:
-        """Process pct."""
+        """Compute percentage of *total*, or 0.0 when total is zero."""
         return round(100.0 * n / total, 1) if total > 0 else 0.0
 
     return {
@@ -61,10 +148,12 @@ def assess_corpus(corpus: Corpus) -> dict:
             "arxiv_id": sum(1 for p in papers if p.arxiv_id),
             "s2_id": sum(1 for p in papers if p.s2_id),
             "openalex_id": sum(1 for p in papers if p.openalex_id),
+            "pmid": sum(1 for p in papers if p.pmid),
         },
         "fulltext_format": {
             "latex_source_and_pdf": sum(1 for p in papers if p.arxiv_id),
             "publisher_pdf_only": sum(1 for p in papers if p.pdf_url and not p.arxiv_id),
             "no_fulltext_available": sum(1 for p in papers if not p.pdf_url and not p.arxiv_id),
         },
+        "provider_breakdown": _provider_breakdown(papers),
     }

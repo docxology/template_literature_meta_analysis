@@ -6,21 +6,26 @@ of hardcoding literal values to ensure consistency and maintainability.
 
 Project layout
 --------------
-output/
-├── data/           Analysis JSON results and intermediate artifacts
-│   ├── corpus.jsonl
-│   ├── subfield_classification.json
-│   ├── temporal_analysis.json
-│   ├── tfidf_data.json
-│   ├── topics.json
-│   ├── citation_network.json
-│   ├── citation_graph.gml
-│   ├── nanopublications.jsonl
-│   ├── hypothesis_scores.json
-│   ├── hypothesis_trends.json
-│   └── fulltext_assessment.json
-├── figures/        Publication-ready PNG figures
-└── manuscript/     Rendered markdown with variables injected
+# output/
+# ├── data/           Analysis JSON results and intermediate artifacts
+# │   ├── corpus.jsonl
+# │   ├── subfield_classification.json
+# │   ├── temporal_analysis.json
+# │   ├── tfidf_data.json
+# │   ├── topics.json
+# │   ├── citation_network.json
+# │   ├── citation_graph.gml
+# │   ├── nanopublications.jsonl
+# │   ├── hypothesis_scores.json
+# │   ├── hypothesis_trends.json
+# │   ├── fulltext_assessment.json
+# │   ├── fulltext_extraction.json
+# │   ├── workflow_graphs.jsonl
+# │   ├── reproducibility_scores.json
+# │   └── reproducibility_summary.json
+# ├── fulltext/       Downloaded PDFs, extracted .txt, and figures/
+# ├── figures/        Publication-ready PNG figures
+# └── manuscript/     Rendered markdown with variables injected
 
 Pipeline defaults
 -----------------
@@ -62,6 +67,14 @@ KG_MIN_YEAR = 1960  # Pre-1960 papers excluded from KG construction
 DEFAULT_LLM_MODEL = "gemma3:4b"
 DEFAULT_LLM_URL = "http://localhost:11434"
 DEFAULT_CHECKPOINT_INTERVAL = 50
+
+# ---------------------------------------------------------------------------
+# Reproducibility assessment defaults (10_reproducibility_assessment.py)
+# ---------------------------------------------------------------------------
+DEFAULT_REPRO_CHECKPOINT_INTERVAL = 50
+# Matches manuscript/config.yaml's `project_config.fulltext.download_dir`
+# ("output/fulltext") when no config file / no override is present.
+FULLTEXT_DIR = OUTPUT_DIR / "fulltext"
 
 # Literature search defaults (01_literature_search.py).
 #
@@ -112,6 +125,8 @@ __all__ = [
     "DEFAULT_LLM_MODEL",
     "DEFAULT_LLM_URL",
     "DEFAULT_CHECKPOINT_INTERVAL",
+    "DEFAULT_REPRO_CHECKPOINT_INTERVAL",
+    "FULLTEXT_DIR",
     "DEFAULT_ARXIV_QUERIES",
     "DEFAULT_RELEVANCE_KEYWORDS",
     # Figure defaults

@@ -95,7 +95,7 @@ class Paper:
     """Represents a single research paper.
 
     The canonical_id property returns the best available identifier
-    with priority: doi > arxiv_id > s2_id > openalex_id > title hash.
+    with priority: doi > pmid > arxiv_id > s2_id > openalex_id > title hash.
 
     Attributes:
         title: Paper title
@@ -103,6 +103,7 @@ class Paper:
         authors: List of Author objects
         year: Publication year
         doi: Digital Object Identifier
+        pmid: PubMed identifier (e.g., "12345678")
         arxiv_id: arXiv identifier (e.g., "2301.12345")
         s2_id: Semantic Scholar paper ID
         openalex_id: OpenAlex work ID
@@ -114,6 +115,7 @@ class Paper:
         is_open_access: Whether the paper is open access
         full_text_source: Provenance of the full text (e.g., "arxiv",
             "publisher", "repository")
+        keywords: Search-engine or author-supplied subject keywords.
     """
 
     title: str
@@ -121,6 +123,7 @@ class Paper:
     authors: list[Author] = field(default_factory=list)
     year: Optional[int] = None
     doi: Optional[str] = None
+    pmid: Optional[str] = None
     arxiv_id: Optional[str] = None
     s2_id: Optional[str] = None
     openalex_id: Optional[str] = None
@@ -131,16 +134,31 @@ class Paper:
     pdf_url: Optional[str] = None
     is_open_access: Optional[bool] = None
     full_text_source: Optional[str] = None
+    keywords: list[str] = field(default_factory=list)
+
+    @property
+    def referenced_works(self) -> list[str]:
+        """Alias for :attr:`references` — matches the OpenAlex/S2 field name.
+
+        Some engines (OpenAlex, Semantic Scholar) expose the reference list
+        under ``referenced_works`` rather than ``references``. The pipeline
+        runner (:func:`analysis.pipeline_runner._count_paper_references`)
+        already checks both names; this alias makes the Paper model
+        self-documenting.
+        """
+        return self.references
 
     @property
     def canonical_id(self) -> str:
-        """Return best available identifier with priority: doi > arxiv_id > s2_id > openalex_id > title hash.
+        """Return best available identifier with priority: doi > pmid > arxiv_id > s2_id > openalex_id > title hash.
 
         The DOI is normalized (case-folded, resolver-prefix/whitespace stripped) so the
         same paper returned by different engines under case/format-variant DOIs merges.
         """
         if self.doi:
             return f"doi:{normalize_doi(self.doi)}"
+        if self.pmid:
+            return f"pmid:{self.pmid}"
         if self.arxiv_id:
             return f"arxiv:{self.arxiv_id}"
         if self.s2_id:
@@ -203,6 +221,8 @@ class Paper:
             count += 1
         if self.doi:
             count += 1
+        if self.pmid:
+            count += 1
         if self.arxiv_id:
             count += 1
         if self.s2_id:
@@ -221,6 +241,8 @@ class Paper:
             count += 1
         if self.is_open_access is not None:
             count += 1
+        if self.keywords:
+            count += 1
         return count
 
     def to_dict(self) -> dict:
@@ -235,6 +257,7 @@ class Paper:
             "authors": [{"name": a.name, "affiliation": a.affiliation, "orcid": a.orcid} for a in self.authors],
             "year": self.year,
             "doi": self.doi,
+            "pmid": self.pmid,
             "arxiv_id": self.arxiv_id,
             "s2_id": self.s2_id,
             "openalex_id": self.openalex_id,
@@ -245,6 +268,7 @@ class Paper:
             "pdf_url": self.pdf_url,
             "is_open_access": self.is_open_access,
             "full_text_source": self.full_text_source,
+            "keywords": self.keywords,
         }
 
     @classmethod
@@ -267,6 +291,7 @@ class Paper:
             authors=authors,
             year=data.get("year"),
             doi=data.get("doi"),
+            pmid=data.get("pmid"),
             arxiv_id=data.get("arxiv_id"),
             s2_id=data.get("s2_id"),
             openalex_id=data.get("openalex_id"),
@@ -277,4 +302,5 @@ class Paper:
             pdf_url=data.get("pdf_url"),
             is_open_access=data.get("is_open_access"),
             full_text_source=data.get("full_text_source"),
+            keywords=data.get("keywords", []),
         )

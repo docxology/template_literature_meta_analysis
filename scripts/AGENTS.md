@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Project-specific **thin orchestrator scripts** for the Active Inference meta-analysis pipeline. Each script coordinates I/O and sequencing; all computational logic resides in `../src/` modules. Scripts are numbered to indicate execution order.
+Project-specific **thin orchestrator scripts** for the literature meta-analysis pipeline (modafinil literature exemplar). Each script coordinates I/O and sequencing; all computational logic resides in `../src/` modules. Script numbers identify roles; dependency order is declared separately.
 
 ## Architecture
 
@@ -16,6 +16,11 @@ scripts/
 ├── 04_generate_figures.py        # → visualization/figure_runner.py
 ├── 05_inject_variables.py        # → manuscript/variables/
 ├── 06_fulltext_assessment.py     # → literature/fulltext_assessment.py
+├── 07_literature_evaluation.py   # → literature/evaluation.py
+├── 08_deep_research_dispatch.py  # → deep_research/deep_research_adapter.py
+├── 09_export_bibliography.py     # → literature/bibliography.py
+├── 10_reproducibility_assessment.py # → reproducibility/runner.py
+├── 11_fulltext_download.py       # → literature/fulltext_download_cli.py
 └── __pycache__/                  # Python bytecode cache (gitignored)
 ```
 
@@ -24,20 +29,24 @@ scripts/
 Scripts are numbered by role, but numeric order is **not** run order: `05_inject_variables.py`
 assembles the final manuscript from every other stage's output (including `06`'s
 `fulltext_assessment.json`, which `00_abstract.md` renders unconditionally), so it must run
-*last* among the analysis scripts. The authoritative run order lives in
-`manuscript/config.yaml`'s `analysis.scripts` list (`02`, `04`, `06`, `07`, `08`, then `05`);
-`01` and `03` are network/Ollama-gated and excluded from the default offline/CI list (run them
-explicitly per the note in `manuscript/config.yaml`).
+*last* among the analysis scripts. The default offline order lives in
+`manuscript/config.yaml`'s `analysis.scripts` list (`02`, `04`, `06`, `07`, `08`, `09`, then
+`05`). Network/LLM-gated scripts `01`, `03`, `10`, and `11` are excluded from that default
+allowlist. Run the opt-in producer/consumer chain explicitly as `11` then `10`, and run `05`
+again afterward when those optional artifacts must be reflected in the manuscript.
 
 | Script | Inputs | Outputs | Dependencies |
 |--------|--------|---------|--------------|
-| `01` | API responses | `output/data/corpus.jsonl` | Network / cached corpus |
+| `01` | API responses | `output/data/corpus.jsonl`, `output/data/retrieval_report.json` | Network / cached corpus; legacy resumes are labelled instead of assigned inferred engine counts |
 | `02` | `corpus.jsonl` | `subfield_classification.json`, `temporal_analysis.json`, `tfidf_data.json`, `topics.json`, `citation_network.json`, `citation_graph.gml` | `01` |
 | `03` | `corpus.jsonl` | `nanopublications.jsonl`, `nanopublications.trig`, `hypothesis_scores.json`, `hypothesis_trends.json`, `assertion_summary.json` | `01`, Ollama (optional) |
 | `04` | All `output/data/*.json`, `citation_graph.gml` | `output/figures/*.png`, `figure_registry.json` | `02`, `03` |
 | `06` | `corpus.jsonl` | `fulltext_assessment.json` | `01` |
 | `07` | `corpus.jsonl` | `output/data/literature_evaluation.json` | `01` |
 | `08` | provider config | `deep_research_replay.json` | none |
+| `09` | `corpus.jsonl` | `output/data/bibliography.bib` | `01` |
+| `11` | `corpus.jsonl` | `output/fulltext/`, `output/data/fulltext_extraction.json` | `01`, network (Unpaywall) |
+| `10` | `corpus.jsonl`, `output/fulltext/` | `workflow_graphs.jsonl`, `reproducibility_scores.json`, `reproducibility_summary.json` | `01`, `11` (or manual fulltext), Ollama (optional) |
 | `05` | `output/data/*.json` (incl. `06`'s `fulltext_assessment.json`), `manuscript/*.md` | `output/manuscript/*.md` (rendered) | `02`, `03`, `06` |
 
 ## Script Details
@@ -46,19 +55,23 @@ explicitly per the note in `manuscript/config.yaml`).
 
 Multi-source literature search orchestrator.
 
-**APIs queried:** arXiv (default query list in `src/config.py` → `DEFAULT_ARXIV_QUERIES`), Semantic Scholar, OpenAlex. Override via `project_config.search.arxiv_queries` in `manuscript/config.yaml`.
+**APIs queried:** arXiv (default query list in `src/config.py` → `DEFAULT_ARXIV_QUERIES`), Semantic Scholar, OpenAlex, Crossref, PubMed, SovietRxiv, ChinaRxiv, Europe PMC, bioRxiv, and medRxiv (10 engines total). Override via `project_config.search.arxiv_queries` in `manuscript/config.yaml`.
 
 **Key flags:**
 - `--resume` / `--no-resume` — load existing `corpus.jsonl` before fetching (default: resume on)
 - `--clear-corpus` — delete existing corpus and start fresh
-- `--skip-arxiv` / `--skip-s2` / `--skip-openalex` / `--skip-crossref` / `--skip-pubmed` / `--skip-sovietrxiv` / `--skip-chinarxiv` — skip individual sources
+- `--skip-arxiv` / `--skip-s2` / `--skip-openalex` / `--skip-crossref` / `--skip-pubmed` / `--skip-sovietrxiv` / `--skip-chinarxiv` / `--skip-europepmc` / `--skip-biorxiv` / `--skip-medrxiv` — skip individual sources
 - `--max-results N` — cap per-source results (default: 1000)
 - `--start-year YYYY` — exclude papers before this year
 - `--config PATH` — load search settings from YAML
 
 **Relevance filter:** Requires at least one core keyword in title/abstract. Configurable via `search.relevance_keywords` in YAML config.
 
-**Imports from `src/`:** `literature.corpus.Corpus`, `literature.models.Paper`, `literature.arxiv_client`, `literature.semantic_scholar`, `literature.openalex_client`.
+**Imports from `src/`:** `literature.search_runner.run_literature_search`, which in turn wires
+`literature.corpus.Corpus`, `literature.models.Paper`, `literature.query_router.QueryRouter`,
+`literature.engine_dispatch.dispatch_ordered`, and all ten engine adapters
+(`arxiv_client`, `semantic_scholar`, `openalex_client`, `crossref_client`, `pubmed_client`,
+`sovietrxiv_client`, `europepmc_client`, `biorxiv_client`).
 
 ### `02_meta_analysis_pipeline.py`
 
@@ -101,7 +114,11 @@ LLM-based assertion extraction and hypothesis scoring via Ollama.
 
 ### `04_generate_figures.py`
 
-Generates all 16 publication-quality figures from analysis JSON files.
+Generates publication-quality figures from analysis JSON files. The figure count is
+**computed dynamically**, not fixed: each figure is emitted only when its source JSON
+input is present, and the caption registry (`src/visualization/figure_runner.py` →
+`FIGURE_CAPTIONS`) currently defines 21 possible figures. Do not hardcode a figure count
+in docs — link this section or the registry instead.
 
 **Figure categories:**
 - **Field overview:** `field_summary.png`, `subfield_distribution.png`
@@ -153,10 +170,70 @@ Corpus-quality and routing coverage summary for the literature workflow.
 - `--corpus PATH` — corpus JSONL path
 - `--query TEXT` — optional query string for routing diagnostics
 - `--output-dir PATH` — output directory for `literature_evaluation.json`
+- `--fixture-honesty` — audit `manuscript/*.md` for undisclosed empirical claims on the
+  synthetic fixture corpus via `literature.fixture_honesty.validate_fixture_honesty`;
+  exits non-zero and logs each finding's `message`/`line_number` on violation
 
 **Reports:** total paper count, DOI coverage, preprint coverage, metadata completeness, duplicate-title groups, source distribution, query routing choice, and optional claim-verification summary.
 
-**Imports from `src/`:** `literature.corpus.Corpus`, `literature.evaluation.evaluate_corpus`.
+**Imports from `src/`:** `literature.corpus.Corpus`, `literature.evaluation.evaluate_corpus`, `literature.fixture_honesty.validate_fixture_honesty`.
+
+### `08_deep_research_dispatch.py`
+
+Thin wrapper around `infrastructure.search.deep_research` demonstrating the deep-research
+adapter without any network call or API key. By default it replays a recorded report
+fixture (deterministic, offline, CI-safe); it also exposes the real provider-neutral
+request a live `submit` would dispatch.
+
+**Key flags:**
+- `--query TEXT` — query used to build the (real) provider-neutral deep-research request
+- `--fixture PATH` — optional explicit recorded-report JSON to replay (defaults to the
+  bundled fixture)
+- `--output-dir PATH` — output directory for dispatch artifacts
+
+**Imports from `src/`:** `deep_research.deep_research_adapter.build_offline_request`, `deep_research.deep_research_adapter.list_provider_profile`, `deep_research.deep_research_adapter.replay_recorded_report`.
+
+### `09_export_bibliography.py`
+
+Thin wrapper around `literature/bibliography.py`. Exports the literature corpus to a single
+unified BibTeX file, deduplicating entries and normalizing citation keys across all ten
+engine sources.
+
+**Key flags:**
+- `--corpus PATH` — corpus JSONL path (default: `output/data/corpus.jsonl`)
+- `--output-dir PATH` — directory for the exported `.bib` file
+- `--log-level {DEBUG,INFO,WARNING,ERROR}`
+
+**Imports from `src/`:** `literature.corpus.Corpus`, `literature.bibliography.corpus_to_bibtex`.
+
+### `11_fulltext_download.py`
+
+Opt-in network producer for open-access PDFs and extracted text. It resolves
+`project_config.fulltext.download_dir` relative to the project root unless
+`--output-dir` explicitly overrides it, so script `10` consumes the same directory.
+
+**Key flags:**
+- `--corpus PATH` — corpus JSONL path
+- `--output-dir PATH` — explicit full-text directory override
+- `--config PATH` — configuration containing `project_config.fulltext`
+- `--max-papers N` — cap download attempts
+
+**Imports from `src/`:** `literature.fulltext_download_cli.main`, which owns
+configuration resolution, download accounting, and extraction-report persistence.
+
+### `10_reproducibility_assessment.py`
+
+Opt-in LLM consumer for the text produced by script `11`. It extracts workflow
+graphs, computes content/structural reproducibility scores, and verifies source
+quotes against extracted full text.
+
+**Key flags:**
+- `--corpus PATH` — corpus JSONL path
+- `--fulltext-dir PATH` — explicit full-text directory override
+- `--config PATH` — sampling, full-text, LLM, and scoring configuration
+- `--max-papers N` — cap papers after deterministic sampling
+
+**Imports from `src/`:** `reproducibility.runner.run_reproducibility_pipeline`.
 
 ## Thin Orchestrator Pattern
 
@@ -172,7 +249,7 @@ Violations of this pattern break the architecture and test coverage guarantees.
 
 All scripts support `--log-level {DEBUG,INFO,WARNING,ERROR}` for verbosity control.
 
-Scripts `01`, `02`, and `03` accept `--config PATH` (default `manuscript/config.yaml`), which **supplies settings** — search queries, relevance keywords, checkpoint intervals, custom hypothesis definitions, etc. Project *discovery* itself is by filesystem convention (a `src/` of Python modules plus `tests/`); `config.yaml` carries metadata and render/search settings, not the discovery predicate.
+Scripts `01`, `02`, `03`, `10`, and `11` accept `--config PATH` (default `manuscript/config.yaml`), which **supplies settings** — search queries, relevance keywords, checkpoint intervals, custom hypothesis definitions, sampling, full-text paths, and scoring settings. Project *discovery* itself is by filesystem convention (a `src/` of Python modules plus `tests/`); `config.yaml` carries metadata and render/search settings, not the discovery predicate.
 
 ## Output Directory Structure
 
@@ -180,6 +257,7 @@ Scripts `01`, `02`, and `03` accept `--config PATH` (default `manuscript/config.
 output/
 ├── data/
 │   ├── corpus.jsonl                  # 01
+│   ├── retrieval_report.json         # 01, timestamp-free per-engine outcomes
 │   ├── subfield_classification.json  # 02
 │   ├── subfield_timeline.json        # 02
 │   ├── temporal_analysis.json        # 02
@@ -193,9 +271,19 @@ output/
 │   ├── hypothesis_trends.json        # 03
 │   ├── assertion_summary.json        # 03
 │   ├── fulltext_assessment.json      # 06
-│   └── literature_evaluation.json   # 07
+│   ├── literature_evaluation.json    # 07
+│   ├── deep_research_replay.json     # 08
+│   ├── bibliography.bib              # 09
+│   ├── workflow_graphs.jsonl          # 10
+│   ├── reproducibility_scores.json    # 10
+│   ├── reproducibility_summary.json   # 10
+│   └── fulltext_extraction.json       # 11
+├── fulltext/                         # 11; configurable
+│   ├── *.pdf
+│   ├── *.txt
+│   └── figures/
 ├── figures/                          # 04
-│   ├── *.png (16 figures)
+│   ├── *.png (count computed dynamically from available inputs — see caption registry)
 │   └── figure_registry.json
 └── manuscript/                       # 05
     └── *.md (rendered with variables)

@@ -1,3 +1,25 @@
+"""Query routing: classify a search query and select the best engine ordering.
+
+Classifies a user's search query as ``academic``, ``industry``, or ``mixed``
+based on keyword patterns, then selects a source-engine ordering that
+prioritizes the engines most likely to have relevant results for that query
+type. Also detects DOI and arXiv-ID patterns for exact-match routing, and
+preprint-related keywords for preprint-preferring routing.
+
+The router is a pure, stateless classifier — it does not call any engine
+or touch the network. The :class:`QueryRoute` it returns is consumed by
+:func:`literature.evaluation.evaluate_corpus` for the stage-07 evaluation
+report and by :func:`literature.search_runner.run_literature_search` for
+optional query-aware engine ordering.
+
+All ten engines appear in every source-order tuple so that no engine is
+silently excluded by routing. The ordering within each tuple is the only
+thing that changes — academic queries put Crossref first (best DOI
+coverage), preprint queries put arXiv first, industry queries put
+Crossref first (best technical-report coverage), and mixed queries put
+Semantic Scholar first (broadest interdisciplinary coverage).
+"""
+
 from __future__ import annotations
 
 import re
@@ -55,10 +77,54 @@ PREPRINT_PATTERNS = (
     "draft",
 )
 
-ACADEMIC_SOURCE_ORDER = ("crossref", "semantic_scholar", "openalex", "pubmed", "arxiv", "sovietrxiv", "chinarxiv")
-INDUSTRY_SOURCE_ORDER = ("crossref", "openalex", "semantic_scholar", "pubmed", "arxiv", "sovietrxiv", "chinarxiv")
-MIXED_SOURCE_ORDER = ("semantic_scholar", "openalex", "crossref", "pubmed", "arxiv", "sovietrxiv", "chinarxiv")
-PREPRINT_SOURCE_ORDER = ("arxiv", "sovietrxiv", "chinarxiv", "semantic_scholar", "openalex", "crossref", "pubmed")
+ACADEMIC_SOURCE_ORDER = (
+    "crossref",
+    "semantic_scholar",
+    "openalex",
+    "pubmed",
+    "europepmc",
+    "arxiv",
+    "biorxiv",
+    "medrxiv",
+    "sovietrxiv",
+    "chinarxiv",
+)
+INDUSTRY_SOURCE_ORDER = (
+    "crossref",
+    "openalex",
+    "semantic_scholar",
+    "pubmed",
+    "europepmc",
+    "arxiv",
+    "biorxiv",
+    "medrxiv",
+    "sovietrxiv",
+    "chinarxiv",
+)
+MIXED_SOURCE_ORDER = (
+    "semantic_scholar",
+    "openalex",
+    "crossref",
+    "pubmed",
+    "europepmc",
+    "arxiv",
+    "biorxiv",
+    "medrxiv",
+    "sovietrxiv",
+    "chinarxiv",
+)
+PREPRINT_SOURCE_ORDER = (
+    "arxiv",
+    "biorxiv",
+    "medrxiv",
+    "sovietrxiv",
+    "chinarxiv",
+    "semantic_scholar",
+    "openalex",
+    "crossref",
+    "pubmed",
+    "europepmc",
+)
 
 
 @dataclass(frozen=True)

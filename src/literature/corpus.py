@@ -3,6 +3,27 @@
 Provides a Corpus class that manages collections of Paper objects with
 deduplication, merging, persistence (JSONL format), and filtering
 capabilities.
+
+Deduplication is two-tiered:
+
+1. **Canonical-ID dedup** (``add()``): papers with the same
+   ``canonical_id`` (DOI-normalized, PMID, arXiv, S2, OpenAlex, or title
+   hash) are merged by keeping the version with higher
+   ``metadata_completeness``. This is the primary dedup path and runs
+   automatically on every ``add()``.
+2. **Metadata dedup** (``deduplicate_by_metadata()``): papers with the
+   same ``publication_signature`` (normalized title + first-3-author
+   signature) but different ``canonical_id`` values (e.g. a preprint on
+   arXiv and the published version on Crossref) are collapsed, preferring
+   preprints or published versions based on the ``prefer_preprints`` flag.
+   This is a secondary, opt-in pass that catches cross-engine duplicates
+   that escaped canonical-ID dedup because they have different identifiers.
+
+Persistence is atomic: ``save()`` writes to a ``.jsonl.tmp`` file first,
+then renames to the final path, so an interrupted write never produces a
+truncated or partially-written corpus file. This mirrors the atomic-write
+convention in :mod:`reproducibility.models.append_workflow_graphs` and
+:mod:`literature.fulltext_download.download_fulltext`.
 """
 
 from __future__ import annotations
@@ -127,6 +148,43 @@ class Corpus:
         """Return the number of papers in the corpus."""
         return len(self._papers)
 
+    def summary(self) -> dict[str, int | float]:
+        """Compute a quick diagnostic summary of this corpus.
+
+        Returns:
+            A dict with counts and percentages for: total papers, papers
+            with DOIs, papers with abstracts, papers with authors, papers
+            with year, preprints, and mean metadata completeness. Useful
+            for logging after a search run or a load.
+        """
+        papers = self._papers.values()
+        total = len(self._papers)
+        if total == 0:
+            return {
+                "total": 0,
+                "with_doi": 0,
+                "with_abstract": 0,
+                "with_authors": 0,
+                "with_year": 0,
+                "preprints": 0,
+                "mean_completeness": 0.0,
+            }
+        with_doi = sum(1 for p in papers if p.doi)
+        with_abstract = sum(1 for p in papers if p.abstract and p.abstract.strip())
+        with_authors = sum(1 for p in papers if p.authors)
+        with_year = sum(1 for p in papers if p.year is not None)
+        preprints = sum(1 for p in papers if p.is_preprint)
+        mean_completeness = sum(p.metadata_completeness for p in papers) / total
+        return {
+            "total": total,
+            "with_doi": with_doi,
+            "with_abstract": with_abstract,
+            "with_authors": with_authors,
+            "with_year": with_year,
+            "preprints": preprints,
+            "mean_completeness": round(mean_completeness, 2),
+        }
+
     def __contains__(self, canonical_id: str) -> bool:
         """Return True if a paper with *canonical_id* is in the corpus."""
         return canonical_id in self._papers
@@ -194,13 +252,20 @@ class Corpus:
     def save(self, path: Path) -> None:
         """Save corpus as a JSONL file (one JSON object per line).
 
+        Atomic write: writes to ``<path>.tmp`` first, then renames to the
+        final path. An interrupted write never leaves a truncated file —
+        either the old corpus or the new one is present at *path*, never a
+        partial mixture.
+
         Args:
             path: File path to write the JSONL data to.
         """
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
+        tmp = path.with_suffix(".jsonl.tmp")
+        with open(tmp, "w", encoding="utf-8") as f:
             for paper in self._papers.values():
                 f.write(json.dumps(paper.to_dict(), ensure_ascii=False) + "\n")
+        tmp.rename(path)
         logger.info("Saved %d papers to %s", len(self._papers), path)
 
     @classmethod

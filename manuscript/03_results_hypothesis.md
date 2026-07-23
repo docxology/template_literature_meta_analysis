@@ -8,11 +8,12 @@ scope and evidence score.
 
 {{HYPOTHESIS_TABLE}}
 
-Evidence scores are produced by the optional, LLM-gated knowledge-graph stage. In the
-offline default run that stage does not execute, so scores read *pending* — the
-hypotheses, their names, and their scope are nonetheless reported directly from
-configuration. A live run with a language model available populates the scores from
-citation-weighted assertion extraction.
+Evidence scores are produced by the optional, LLM-gated knowledge-graph stage. When
+the knowledge-graph stage is skipped (no language model configured), scores read
+*pending*. When the stage runs (as in this instance, with {{TOTAL_ASSERTIONS}}
+assertions extracted via Ollama), scores are populated from citation-weighted
+assertion extraction. The hypotheses, their names, and their scope are always reported
+directly from configuration regardless of whether the LLM stage executed.
 
 ## Interpretation
 

@@ -16,8 +16,10 @@ Project source for the literature meta-analysis exemplar. All domain behavior li
 literature        -> no project-src dependencies
 analysis          -> literature.models
 knowledge_graph   -> literature.models
+reproducibility   -> literature.models + knowledge_graph LLM boundary
 visualization     -> serialized analysis/KG JSON inputs
 manuscript        -> output JSON + config only
+deep_research     -> infrastructure.search.deep_research (offline fixture replay)
 scripts           -> src modules + optional infrastructure helpers
 ```
 
@@ -27,15 +29,22 @@ Do not introduce cycles across these layers.
 
 | Module | Script | Role |
 | --- | --- | --- |
-| `literature/search_runner.py` | `01_literature_search.py` | Multi-engine retrieval, relevance filtering, corpus persistence |
+| `literature/search_runner.py` | `01_literature_search.py` | Multi-engine retrieval, relevance filtering, corpus persistence, and deterministic per-engine `retrieval_report.json` provenance |
 | `analysis/pipeline_runner.py` | `02_meta_analysis_pipeline.py` | Bibliometrics, text analytics, topics, citation graph |
 | `knowledge_graph/kg_runner.py` | `03_build_knowledge_graph.py` | Optional LLM assertions, hypothesis scores, nanopublications |
 | `visualization/figure_runner.py` | `04_generate_figures.py` | Figure generation and registry writing |
 | `manuscript/variables/` | `05_inject_variables.py` | Token computation and manuscript hydration |
 | `literature/fulltext_assessment.py` | `06_fulltext_assessment.py` | Full-text availability report |
+| `literature/evaluation.py` | `07_literature_evaluation.py` | Corpus-quality/routing summary and fixture-honesty audit (`literature/fixture_honesty.py`) |
+| `deep_research/deep_research_adapter.py` | `08_deep_research_dispatch.py` | Offline-fixture-replay demo of the provider-neutral deep-research request |
+| `literature/bibliography.py` | `09_export_bibliography.py` | Complete-corpus BibTeX export |
+| `reproducibility/runner.py` | `10_reproducibility_assessment.py` | Optional active-scope workflow extraction and scoring |
+| `literature/fulltext_download_cli.py` | `11_fulltext_download.py` | Configured opt-in download orchestration and extraction-report persistence |
 
 ## Support Modules
 
 | Module | Used by | Role |
 | --- | --- | --- |
-| `config_loader.py` | `literature/search_runner.py`, `knowledge_graph/kg_runner.py` | YAML config loading (`load_search_config`, `load_kg_config`) shared across runners |
+| `config_loader.py` | Search, knowledge-graph, full-text, and reproducibility runners | Side-effect-free YAML loading and shared path resolution |
+| `config_validation.py` | Executable runners | Fail-closed typed boundary validation before output or network/LLM effects |
+| `literature/fulltext_download.py` | Full-text CLI and reproducibility pipeline | Validated PDF resolution, download, extraction, and coverage primitives |

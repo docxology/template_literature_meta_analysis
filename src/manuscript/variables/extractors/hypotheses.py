@@ -37,6 +37,8 @@ def extract_hypotheses(ctx: ExtractContext) -> dict[str, str]:
             variables["ASSERTION_CONTRADICT_PCT"] = "0.0"
     else:
         logger.info("assertion_summary.json not found; assertion variables skipped")
+        variables["TOTAL_ASSERTIONS"] = "pending"
+        variables["TOTAL_ASSERTIONS_RAW"] = "0"
 
     scores = ctx.load_json("hypothesis_scores.json")
     if scores:
@@ -61,7 +63,7 @@ def extract_hypotheses(ctx: ExtractContext) -> dict[str, str]:
         from knowledge_graph.hypothesis import config_key_to_hypothesis_id
     except ImportError:  # pragma: no cover
 
-        def config_key_to_hypothesis_id(key: str, name: str = "") -> str:  # type: ignore[misc]
+        def config_key_to_hypothesis_id(key: str, name: str = "") -> str:
             """Process config key to hypothesis id."""
             return key
 
