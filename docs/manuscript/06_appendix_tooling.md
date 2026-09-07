@@ -37,7 +37,7 @@ uv run python scripts/09_export_bibliography.py
 
 ## Re-target to Another Topic
 
-Edit `manuscript/config.yaml` — `project_config.search.term`, `query`,
+Edit `docs/manuscript/config.yaml` — `project_config.search.term`, `query`,
 `relevance_keywords`, `subfield_keywords`, and `hypothesis_definitions` — then regenerate
 the seed corpus and re-run. No code changes are required; the manuscript re-targets
 through token injection.

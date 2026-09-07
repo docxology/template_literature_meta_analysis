@@ -80,17 +80,17 @@ coverage, lint, type, validation, and regeneration gates.
 - [x] ISC-7: `engine_dispatch.py` coverage reaches ≥95% (from 52.5%).
 - [x] ISC-8: `scripts/AGENTS.md` `01_literature_search.py` flag list includes `--skip-europepmc` and `--skip-biorxiv`.
 - [x] ISC-9: `scripts/AGENTS.md` documents `09_export_bibliography.py` (architecture tree, Script Details section, Output Directory Structure).
-- [x] ISC-10: `manuscript/02_methods_overview.md` "Engine toggles" bullet lists all 9 engines.
-- [x] ISC-11: `manuscript/02a_methods_retrieval.md` prose mentions Europe PMC and bioRxiv/medRxiv.
-- [x] ISC-12: `manuscript/02a_methods_retrieval.md` rate-limit table has rows for Europe PMC and bioRxiv/medRxiv.
-- [x] ISC-13: `manuscript/06_appendix_tooling.md` no longer says "7 engines" / "All 7 engine clients" where 9 is accurate.
-- [x] ISC-14: `manuscript/06_appendix_tooling.md` example command and skip-flag list include `--skip-europepmc --skip-biorxiv`.
+- [x] ISC-10: `docs/manuscript/02_methods_overview.md` "Engine toggles" bullet lists all 9 engines.
+- [x] ISC-11: `docs/manuscript/02a_methods_retrieval.md` prose mentions Europe PMC and bioRxiv/medRxiv.
+- [x] ISC-12: `docs/manuscript/02a_methods_retrieval.md` rate-limit table has rows for Europe PMC and bioRxiv/medRxiv.
+- [x] ISC-13: `docs/manuscript/06_appendix_tooling.md` no longer says "7 engines" / "All 7 engine clients" where 9 is accurate.
+- [x] ISC-14: `docs/manuscript/06_appendix_tooling.md` example command and skip-flag list include `--skip-europepmc --skip-biorxiv`.
 - [x] ISC-15: `src/literature/README.md` intro no longer says "three academic APIs."
 - [x] ISC-16: `src/literature/README.md` has a component section for every `src/literature/*.py` module currently undocumented (crossref_client, pubmed_client, sovietrxiv_client, bibliography, fulltext_download, engine_dispatch).
 - [x] ISC-17: `src/literature/README.md` "Deduplication Strategy" prose reflects all 9 sources, not 3.
 - [x] ISC-18: `src/literature/README.md` "Output" section no longer asserts a stale fixed corpus count/engine-set as current fact.
 - [x] ISC-19: `src/literature/SKILL.md` description no longer says "three engines" / names only 3.
-- [x] ISC-20: `manuscript/config.yaml` `pipeline_stages` includes an `export_bibliography` entry pointing at `09_export_bibliography.py`.
+- [x] ISC-20: `docs/manuscript/config.yaml` `pipeline_stages` includes an `export_bibliography` entry pointing at `09_export_bibliography.py`.
 - [x] ISC-21: Anti: no ISC-5..20 edit causes any of the 397 pre-existing literature tests to fail.
 - [x] ISC-22: Anti: no ISC-5..20 edit reduces `src/literature/` coverage below 90%.
 - [x] ISC-23: Anti: no edit touches `output/` generated manuscript artifacts by hand.
@@ -198,7 +198,7 @@ plus propagate any other repo-wide literature-research improvements.
 
 **What shipped:** a new `src/reproducibility/` subpackage (models/scoring/prompts/
 extraction/runner, mirroring `knowledge_graph/`'s exact conventions), wired into
-`scripts/10_reproducibility_assessment.py`, `manuscript/config.yaml`, and the
+`scripts/10_reproducibility_assessment.py`, `docs/manuscript/config.yaml`, and the
 manuscript-variable pipeline (`03e_results_reproducibility.md`). 129 new tests,
 zero mocks, full project suite 1099/1099 passing, 96.29% coverage (up from
 93.69%), ruff/mypy/doc-lint all clean — independently re-verified via fresh
@@ -245,7 +245,7 @@ config) — flagged here for whoever next touches pytest's import-mode config.
 - ISC-23/24: `git status --short` before/after shows only files under `template_literature_meta_analysis/` (plus its own ISA.md) changed; `output/` and `infrastructure/search/connectors/` untouched.
 - ISC-25: no `git push` command was ever issued this session (self-audit of full tool-call history).
 - ISC-27/28: `ruff check --no-cache` and `mypy --no-incremental` on `engine_dispatch.py` + `test_engine_dispatch.py` → both clean.
-- ISC-29: `uv run python scripts/audit/lint_docs.py` → "All documentation linters passed" (mermaid 269 blocks, 0 broken cross-links, 0 consistency issues); `infrastructure.validation.cli markdown manuscript/` → "No issues found!".
+- ISC-29: `uv run python scripts/audit/lint_docs.py` → "All documentation linters passed" (mermaid 269 blocks, 0 broken cross-links, 0 consistency issues); `infrastructure.validation.cli markdown docs/manuscript/` → "No issues found!".
 - Full-project regression: `pytest projects/templates/template_literature_meta_analysis/ --cache-clear` → "995 passed" (cache-off, Gate G); `mypy --no-incremental src/literature/` → clean; `scripts/audit/verify_no_mocks.py` → PASS.
 - Regression-test validity (advisor-prompted): stashed the `engine_dispatch.py` fix, re-ran `test_engine_dispatch.py` against pre-fix code → 1 failed (`test_engine_enabled_special_engines_honor_config_toggle_regression`), 12 passed; restored the fix, same test now passes. Proves the new test is non-vacuous.
 - End-to-end smoke (advisor-prompted, "show not tell"): ran `generate_fixture_corpus.py` → 80 records, then `scripts/09_export_bibliography.py --corpus ... --output-dir ...` → produced a real, well-formed 37KB `bibliography.bib` with correct BibTeX entries. Script works end-to-end, not just via unit tests of the underlying module.

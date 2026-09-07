@@ -61,7 +61,7 @@ $t_d = \ln(2) / \ln(1 + \text{CAGR})$. For this run: CAGR = {{CAGR_PCT}}\%, doub
 
 ## Configuration Surface
 
-A single `manuscript/config.yaml` controls the search term, per-engine query and keyword
+A single `docs/manuscript/config.yaml` controls the search term, per-engine query and keyword
 sets, engine enable toggles, subfield taxonomy, hypotheses, full-text and embedding
 options, and paper metadata. This run drew on {{N_ENGINES}} engines, a
 {{N_SUBFIELDS}}-bucket taxonomy, and {{N_HYPOTHESES}} hypotheses.

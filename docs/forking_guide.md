@@ -9,13 +9,13 @@
 ## The one idea to internalize
 
 **Every domain-specific fact in the paper is injected from
-[`manuscript/config.yaml`](../manuscript/config.yaml) and the pipeline's own
+[`docs/manuscript/config.yaml`](../docs/manuscript/config.yaml) and the pipeline's own
 outputs.** The manuscript prose contains **no hard-coded topic terms** — it is
 written entirely in `{{TOKENS}}` (`{{SEARCH_TERM_TITLE}}`, `{{CORPUS_SIZE}}`,
 `{{SUBFIELD_TABLE}}`, `{{HYPOTHESIS_TABLE}}`, …). Re-targeting the config
-re-targets the entire paper; you should not need to touch a single `manuscript/*.md`
+re-targets the entire paper; you should not need to touch a single `docs/manuscript/*.md`
 body file to change topics. (Verified: the only place "modafinil" appears in
-`manuscript/` is the authoring `README.md`.)
+`docs/manuscript/` is the authoring `README.md`.)
 
 ## TL;DR
 
@@ -29,7 +29,7 @@ uv run python scripts/audit/copy_exemplar.py \
   --dest projects/working/my_review \
   --new-name my_review
 
-# 2. Edit ONE file: projects/working/my_review/manuscript/config.yaml
+# 2. Edit ONE file: projects/working/my_review/docs/manuscript/config.yaml
 #    → project_config.search.{term,query,arxiv_queries,relevance_keywords}
 #    → project_config.subfield_keywords  (your taxonomy)
 #    → project_config.hypothesis_definitions  (your hypotheses)
@@ -53,7 +53,7 @@ Your fork under `projects/working/my_review/` is local-only and won't be pushed
 even with `git add -f` — `scripts/audit/check_tracked_projects.py` blocks it in
 `pre-push-quick`. See the root [`CLAUDE.md`](../../../../CLAUDE.md) "CONFIDENTIALITY INVARIANT".
 
-## The single control surface: `manuscript/config.yaml`
+## The single control surface: `docs/manuscript/config.yaml`
 
 Everything you need to re-target lives under `project_config:`. The blocks, in
 the order you'll touch them:
@@ -159,7 +159,7 @@ engines merges.
 
 ## Token discipline (why stage 5 fails loudly)
 
-`05_inject_variables.py` replaces `{{TOKEN}}` in every `manuscript/*.md` (except
+`05_inject_variables.py` replaces `{{TOKEN}}` in every `docs/manuscript/*.md` (except
 the authoring docs `README.md`/`AGENTS.md`/`SYNTAX.md`, and the lenient
 `02e_methods_viz_injection.md` which documents the token system). If a body file
 references a token that `compute_variables` doesn't produce, injection **raises a
@@ -189,7 +189,7 @@ uv run python scripts/audit/check_template_drift.py
 | Corpus is tiny / empty | `relevance_keywords` too narrow, or `query` too restrictive | Broaden keywords/query; inspect `output/data/corpus.jsonl`; remember the filter is case-insensitive substring |
 | `Semantic Scholar: 0 papers` | S2 rate-limits (HTTP 429) without an API key | Expected; the run continues on the other engines. Set an S2 key for reliability |
 | `RuntimeError: Unresolved variables in <file>` | A `{{TOKEN}}` isn't produced by `compute_variables` | Add it there, or remove the token from the manuscript |
-| `{{TOKEN}}` literal in PDF | Stage 5 not re-run after a manuscript/config edit | Re-run `05_inject_variables.py` |
+| `{{TOKEN}}` literal in PDF | Stage 5 not re-run after a docs/manuscript/config edit | Re-run `05_inject_variables.py` |
 | Hypothesis scores all read `pending` | Stage 03 (KG) hasn't run, or no Ollama | Run `03_build_knowledge_graph.py` (needs Ollama); scores then populate |
 | `mmdc could not find Chrome` at PDF stage | Mermaid blocks need `chrome-headless-shell` | `npx --yes puppeteer browsers install chrome-headless-shell` |
 | Stale `*.egg-info/` after rename | editable install under old name | `rm -rf src/*.egg-info/` (already git-ignored) |

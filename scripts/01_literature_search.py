@@ -31,7 +31,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--query",
         default=None,
-        help="Search query string (defaults to manuscript/config.yaml project_config.search.query or term)",
+        help="Search query string (defaults to docs/manuscript/config.yaml project_config.search.query or term)",
     )
     parser.add_argument("--max-results", type=int, default=1000)
     parser.add_argument("--output-dir", type=str, default=str(DEFAULT_OUTPUT_DIR))

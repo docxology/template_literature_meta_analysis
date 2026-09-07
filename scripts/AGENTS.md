@@ -9,19 +9,18 @@ Project-specific **thin orchestrator scripts** for the literature meta-analysis 
 ```
 scripts/
 ├── _bootstrap.py                 # PYTHONPATH + optional infrastructure root
-├── _io.py                        # Shared JSON load/write helpers
 ├── 01_literature_search.py       # → literature/search_runner.py
 ├── 02_meta_analysis_pipeline.py  # → analysis/pipeline_runner.py
 ├── 03_build_knowledge_graph.py   # → knowledge_graph/kg_runner.py
 ├── 04_generate_figures.py        # → visualization/figure_runner.py
-├── 05_inject_variables.py        # → manuscript/variables/
+├── 05_inject_variables.py        # → manuscript/variables.py
 ├── 06_fulltext_assessment.py     # → literature/fulltext_assessment.py
 ├── 07_literature_evaluation.py   # → literature/evaluation.py
 ├── 08_deep_research_dispatch.py  # → deep_research/deep_research_adapter.py
 ├── 09_export_bibliography.py     # → literature/bibliography.py
 ├── 10_reproducibility_assessment.py # → reproducibility/runner.py
 ├── 11_fulltext_download.py       # → literature/fulltext_download_cli.py
-├── generate_fixture_corpus.py   # rebuild the committed synthetic fixture corpus
+├── generate_fixture_corpus.py    # → literature/fixture_corpus.py (rebuilds synthetic fixture corpus)
 └── __pycache__/                  # Python bytecode cache (gitignored)
 ```
 
@@ -31,7 +30,7 @@ Scripts are numbered by role, but numeric order is **not** run order: `05_inject
 assembles the final manuscript from every other stage's output (including `06`'s
 `fulltext_assessment.json`, which `00_abstract.md` renders unconditionally), so it must run
 *last* among the analysis scripts. The default offline order lives in
-`manuscript/config.yaml`'s `analysis.scripts` list (`02`, `04`, `06`, `07`, `08`, `09`, then
+`docs/manuscript/config.yaml`'s `analysis.scripts` list (`02`, `04`, `06`, `07`, `08`, `09`, then
 `05`). Network/LLM-gated scripts `01`, `03`, `10`, and `11` are excluded from that default
 allowlist. Run the opt-in producer/consumer chain explicitly as `11` then `10`, and run `05`
 again afterward when those optional artifacts must be reflected in the manuscript.
@@ -48,7 +47,7 @@ again afterward when those optional artifacts must be reflected in the manuscrip
 | `09` | `corpus.jsonl` | `output/data/bibliography.bib` | `01` |
 | `11` | `corpus.jsonl` | `output/fulltext/`, `output/data/fulltext_extraction.json` | `01`, network (Unpaywall) |
 | `10` | `corpus.jsonl`, `output/fulltext/` | `workflow_graphs.jsonl`, `reproducibility_scores.json`, `reproducibility_summary.json` | `01`, `11` (or manual fulltext), Ollama (optional) |
-| `05` | `output/data/*.json` (incl. `06`'s `fulltext_assessment.json`), `manuscript/*.md` | `output/manuscript/*.md` (rendered) | `02`, `03`, `06` |
+| `05` | `output/data/*.json` (incl. `06`'s `fulltext_assessment.json`), `docs/manuscript/*.md` | `output/manuscript/*.md` (rendered) | `02`, `03`, `06` |
 
 ## Script Details
 
@@ -56,7 +55,7 @@ again afterward when those optional artifacts must be reflected in the manuscrip
 
 Multi-source literature search orchestrator.
 
-**APIs queried:** arXiv (default query list in `src/config.py` → `DEFAULT_ARXIV_QUERIES`), Semantic Scholar, OpenAlex, Crossref, PubMed, SovietRxiv, ChinaRxiv, Europe PMC, bioRxiv, and medRxiv (10 engines total). Override via `project_config.search.arxiv_queries` in `manuscript/config.yaml`.
+**APIs queried:** arXiv (default query list in `src/config.py` → `DEFAULT_ARXIV_QUERIES`), Semantic Scholar, OpenAlex, Crossref, PubMed, SovietRxiv, ChinaRxiv, Europe PMC, bioRxiv, and medRxiv (10 engines total). Override via `project_config.search.arxiv_queries` in `docs/manuscript/config.yaml`.
 
 **Key flags:**
 - `--resume` / `--no-resume` — load existing `corpus.jsonl` before fetching (default: resume on)
@@ -172,7 +171,7 @@ Corpus-quality and routing coverage summary for the literature workflow.
 - `--corpus PATH` — corpus JSONL path
 - `--query TEXT` — optional query string for routing diagnostics
 - `--output-dir PATH` — output directory for `literature_evaluation.json`
-- `--fixture-honesty` — audit `manuscript/*.md` for undisclosed empirical claims on the
+- `--fixture-honesty` — audit `docs/manuscript/*.md` for undisclosed empirical claims on the
   synthetic fixture corpus via `literature.fixture_honesty.validate_fixture_honesty`;
   exits non-zero and logs each finding's `message`/`line_number` on violation
 
@@ -251,7 +250,7 @@ Violations of this pattern break the architecture and test coverage guarantees.
 
 All scripts support `--log-level {DEBUG,INFO,WARNING,ERROR}` for verbosity control.
 
-Scripts `01`, `02`, `03`, `10`, and `11` accept `--config PATH` (default `manuscript/config.yaml`), which **supplies settings** — search queries, relevance keywords, checkpoint intervals, custom hypothesis definitions, sampling, full-text paths, and scoring settings. Project *discovery* itself is by filesystem convention (a `src/` of Python modules plus `tests/`); `config.yaml` carries metadata and render/search settings, not the discovery predicate.
+Scripts `01`, `02`, `03`, `10`, and `11` accept `--config PATH` (default `docs/manuscript/config.yaml`), which **supplies settings** — search queries, relevance keywords, checkpoint intervals, custom hypothesis definitions, sampling, full-text paths, and scoring settings. Project *discovery* itself is by filesystem convention (a `src/` of Python modules plus `tests/`); `config.yaml` carries metadata and render/search settings, not the discovery predicate.
 
 ## Output Directory Structure
 
@@ -288,6 +287,6 @@ output/
 ├── figures/                          # 04
 │   ├── *.png (count computed dynamically from available inputs — see caption registry)
 │   └── figure_registry.json
-└── manuscript/                       # 05
+└── docs/manuscript/                       # 05
     └── *.md (rendered with variables)
 ```

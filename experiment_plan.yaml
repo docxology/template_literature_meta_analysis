@@ -4,7 +4,7 @@ conditions:
     description: "Run the deterministic synthetic fixture corpus with no network or LLM dependency."
   - name: live_retrieval
     role: proposed
-    description: "Run enabled engines from manuscript/config.yaml against live services with graceful skipped-engine degradation."
+    description: "Run enabled engines from docs/manuscript/config.yaml against live services with graceful skipped-engine degradation."
   - name: knowledge_graph_resume
     role: variant
     description: "Reload existing nanopublications and score hypotheses without new LLM extraction."

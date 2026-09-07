@@ -45,7 +45,7 @@ PYTHONPATH=/path/to/template python scripts/05_inject_variables.py
 PYTHONPATH=/path/to/template python scripts/05_inject_variables.py --dry-run
 ```
 
-Output goes to `output/manuscript/`. Source files in `manuscript/` are never overwritten.
+Output goes to `output/manuscript/`. Source files in `docs/manuscript/` are never overwritten.
 
 ---
 

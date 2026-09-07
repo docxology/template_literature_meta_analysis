@@ -361,7 +361,7 @@ project_config:
         - output/data/temporal_analysis.json
         - output/data/subfield_classification.json
       outputs:
-        - manuscript/00_abstract.md
+        - docs/manuscript/00_abstract.md
       description: "Compute dynamic variables from pipeline outputs and inject them into manuscript Markdown templates"
 
   # Subfield taxonomy: keyword sets that classify each record into one bucket.

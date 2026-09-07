@@ -9,17 +9,17 @@ claims:
   - claim_id: configured-default-search-term
     kind: string
     value: modafinil
-    source: projects/templates/template_literature_meta_analysis/manuscript/config.yaml project_config.search.term
+    source: projects/templates/template_literature_meta_analysis/docs/manuscript/config.yaml project_config.search.term
     source_tier: project_config
     freshness: active
-    artifact_path: manuscript/config.yaml
+    artifact_path: docs/manuscript/config.yaml
   - claim_id: enabled-retrieval-engine-count
     kind: number
     value: 10
-    source: projects/templates/template_literature_meta_analysis/manuscript/config.yaml project_config.search.engines
+    source: projects/templates/template_literature_meta_analysis/docs/manuscript/config.yaml project_config.search.engines
     source_tier: project_config
     freshness: active
-    artifact_path: manuscript/config.yaml
+    artifact_path: docs/manuscript/config.yaml
   - claim_id: default-figure-dpi
     kind: number
     value: 300
