@@ -135,14 +135,19 @@ that reads `pending` until stage 03 runs.
 
 | Stage | Script | Reads | Writes | Notes |
 |---|---|---|---|---|
-| 1 | `01_literature_search.py` | config | `output/data/corpus.jsonl` | 7-engine dispatch + cross-engine de-dup; `--clear-corpus --no-resume` for a fresh run |
+| 1 | `01_literature_search.py` | config | `output/data/corpus.jsonl` | 10-engine dispatch + cross-engine de-dup; `--clear-corpus --no-resume` for a fresh run |
 | 2 | `02_meta_analysis_pipeline.py` | corpus | subfield/temporal/tfidf/topics/citation JSON + `citation_graph.gml` | deterministic (seeded) |
 | 3 | `03_build_knowledge_graph.py` | corpus | nanopublications (JSONL + RDF/TriG), hypothesis scores | **optional** — needs Ollama; `--max-papers N` to sample |
-| 4 | `04_generate_figures.py` | stage-2/3 JSON | up to 12 PNGs in `output/figures/` | KG-dependent figures skip gracefully if 03 didn't run |
+| 4 | `04_generate_figures.py` | stage-2/3 JSON | up to 21 PNGs in `output/figures/` | KG-dependent figures skip gracefully if 03 didn't run |
 | 5 | `05_inject_variables.py` | config + all outputs | `output/manuscript/*.md` | injects `{{TOKENS}}`; **raises on any unresolved token** |
 | 6 | `06_fulltext_assessment.py` | corpus | full-text assessment | optional |
 
-De-duplication is by `canonical_id` with priority **normalized-DOI > arXiv > S2 >
+The opt-in stages `07_literature_evaluation.py`, `08_deep_research_dispatch.py`,
+`09_export_bibliography.py`, and the full-text chain `11_fulltext_download.py` →
+`10_reproducibility_assessment.py` sit outside this allowlist; see
+[`../scripts/README.md`](../scripts/README.md).
+
+De-duplication is by `canonical_id` with priority **normalized-DOI > PMID > arXiv > S2 >
 OpenAlex > title-digest**; DOIs are case/prefix-folded so the same paper from two
 engines merges.
 

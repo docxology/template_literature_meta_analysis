@@ -22,4 +22,4 @@ Add the value in `src/manuscript/variables/compute.py` (or the relevant extracto
 
 ## Which generated files can be committed?
 
-None under project-local `output/`. Commit source, config, fixtures, tests, and docs. Generated output is disposable.
+Only the canonical public exemplar's latest publication-evidence snapshot is tracked under `output/` (files below the 50 MB public ceiling; see [`output_conventions.md`](output_conventions.md)). Otherwise commit source, config, fixtures, tests, and docs: generated output is disposable and must be regenerated, never hand-edited.

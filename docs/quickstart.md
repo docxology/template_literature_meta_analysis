@@ -2,14 +2,14 @@
 
 Get up and running with the `template_literature_meta_analysis` exemplar in ~5 minutes. This
 template performs a full, reproducible literature review for a **single search term** across
-seven academic search engines (arXiv, OpenAlex, Semantic Scholar, Crossref, PubMed, SovietRxiv,
-ChinaRxiv), then de-duplicates, analyzes, and visualizes the corpus. The
+ten academic search engines (arXiv, OpenAlex, Semantic Scholar, Crossref, PubMed, SovietRxiv,
+ChinaRxiv, Europe PMC, bioRxiv, medRxiv), then de-duplicates, analyzes, and visualizes the corpus. The
 bundled default term is **`modafinil`**; change one config key to re-target any topic.
 
 ## Prerequisites
 
 - Python 3.10 or higher
-- [`uv`](https://github.com/astral-sh/uv) package manager (repo invariant — see the root `CLAUDE.md`)
+- [`uv`](https://github.com/astral-sh/uv) package manager (repo invariant: run project commands through `uv`)
 - Git
 - Network access for the live search stage (arXiv, OpenAlex, Crossref, PubMed are keyless;
   Semantic Scholar works without a key but is aggressively rate-limited — it degrades gracefully)
@@ -52,7 +52,8 @@ project_config:
     query: '"modafinil" OR "provigil" OR "armodafinil"'
     start_year: 1990
     max_results: 1000
-    engines: { arxiv: true, openalex: true, semantic_scholar: true, crossref: true, pubmed: true }
+    engines: { arxiv: true, openalex: true, semantic_scholar: true, crossref: true, pubmed: true,
+               sovietrxiv: true, chinarxiv: true, europepmc: true, biorxiv: true, medrxiv: true }
 ```
 
 To run a literature review on a different topic, edit `term`, `query`, `arxiv_queries`,
@@ -84,7 +85,7 @@ uv run python scripts/05_inject_variables.py
 
 A fresh modafinil run typically yields ~2,300 unique papers in under a minute (OpenAlex +
 Crossref + PubMed dominate; arXiv is near-empty for clinical terms; S2 may return 0 on a 429).
-De-duplication is by `canonical_id` (priority `doi > arxiv_id > s2_id > openalex_id > title-hash`).
+De-duplication is by `canonical_id` (priority `doi > pmid > arxiv_id > s2_id > openalex_id > title-hash`).
 
 ## Outputs
 
@@ -93,9 +94,11 @@ De-duplication is by `canonical_id` (priority `doi > arxiv_id > s2_id > openalex
 - `data/*.json` — `subfield_classification`, `temporal_analysis`, `tfidf_data`, `topics`,
   `citation_network`, `subfield_timeline`, plus `hypothesis_scores`/`nanopublications.trig` if stage 3 ran
 - `data/citation_graph.gml` — citation network (Gephi/NetworkX-readable)
-- `figures/*.png` — up to 12 figures (field summary, subfield distribution donut, growth curve,
+- `figures/*.png` — up to 21 figures (field summary, subfield distribution donut, growth curve,
   subfield timeline, citation network, degree distribution, word cloud, topic-term bars,
-  PCA embeddings, term heatmap, dendrogram, co-occurrence matrix)
+  PCA embeddings, term heatmap, dendrogram, co-occurrence matrix, plus the descriptive-statistics
+  and hypothesis/assertion charts; the canonical list is `FIGURE_CAPTIONS` in
+  `src/visualization/figure_runner.py`)
 
 ## Render the Publication PDF
 

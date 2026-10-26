@@ -7,7 +7,7 @@ linear flow from a search term to a rendered manuscript.
 
 | Layer | Files | Responsibility | Tested by |
 | --- | --- | --- | --- |
-| **Retrieval** | `src/literature/{arxiv,openalex,semantic_scholar,crossref,pubmed}_client.py`, `search_runner.py` | Dispatch a query to each enabled engine; parse responses into `Paper`; degrade to `skipped` on error | engine + dispatch test classes |
+| **Retrieval** | `src/literature/{arxiv,openalex,semantic_scholar,crossref,pubmed,sovietrxiv,europepmc,biorxiv}_client.py`, `search_runner.py` | Dispatch a query to each of the ten enabled engines (SovietRxiv/ChinaRxiv and bioRxiv/medRxiv each share one client); parse responses into `Paper`; degrade to `skipped` on error | engine + dispatch test classes |
 | **Model & de-dup** | `src/literature/models.py`, `corpus.py` | Canonical `Paper` record; merge duplicates by DOI/arXiv/S2/OpenAlex/title-hash | `TestPaperCanonicalId`, `TestCorpusAdd`, `TestCorpusMerge` |
 | **Full text** | `src/literature/fulltext_download.py`, `fulltext_assessment.py` | Resolve + download OA PDFs (opt-in); summarise availability | full-text test module |
 | **Analysis** | `src/analysis/` | Descriptive stats + meta-report, entities, embeddings, topics, temporal trends, citation network | analysis test classes |
@@ -27,7 +27,7 @@ config.yaml (term) ─→ search_runner ─→ corpus.jsonl (deduped Paper recor
   citation network)                                               nanopublications — optional)
         └─────────────────────────────────┼───────────────────────────────┘
                                           ▼
-                          docs/manuscript/variables/ ─→ injected manuscript ─→ PDF/HTML
+                          src/manuscript/variables/ ─→ injected manuscript ─→ PDF/HTML
 ```
 
 Offline, `corpus.jsonl` is seeded from the committed synthetic fixture

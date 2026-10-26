@@ -9,8 +9,8 @@ tags: [exemplar, literature, meta-analysis, bibliometrics]
 
 # template-literature-meta-analysis
 
-Project-scoped skill for the in-repo exemplar at
-`projects/templates/template_literature_meta_analysis/`. Load this when working inside the project.
+Project-scoped skill for this exemplar — the repository root of this standalone mirror
+(monorepo path: `projects/templates/template_literature_meta_analysis/`). Load this when working inside the project.
 
 ## When to Use
 
@@ -51,4 +51,4 @@ uv run python scripts/pipeline/stage_05_copy.py --project templates/template_lit
 - Project contract: [`AGENTS.md`](../../../AGENTS.md)
 - README: [`README.md`](../../../README.md)
 - TODO: [`TODO.md`](../../../TODO.md)
-- Exemplar roster: [`projects/AGENTS.md`](../../../../../AGENTS.md)
+- Repo rules: [`AGENTS.md`](../../../AGENTS.md)

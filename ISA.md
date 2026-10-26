@@ -71,6 +71,11 @@ coverage, lint, type, validation, and regeneration gates.
 
 ## Criteria
 
+> Roster note (2026-10-26): the "9 engines/specs" counts in ISC-6, ISC-10, ISC-13, ISC-17 and
+> in the dated 2026-07-13 decisions below predate the medRxiv engine. The current roster is ten
+> engines (`ENGINE_SPECS` in `src/literature/engine_dispatch.py`); those historical rows are left
+> as written.
+
 - [x] ISC-1: `uv run pytest tests/literature/` passes 397/397 before any edits (baseline).
 - [x] ISC-2: `ruff check --no-cache` on `src/literature/` + touched scripts returns zero violations (baseline).
 - [x] ISC-3: `mypy --no-incremental` on `src/literature/` returns zero issues (baseline).

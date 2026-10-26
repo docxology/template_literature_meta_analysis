@@ -111,7 +111,7 @@ infrastructure, pipeline stages, or cross-template validation.
 | Capability | Where |
 | --- | --- |
 | Ten-engine dispatch (arXiv, OpenAlex, Semantic Scholar, Crossref, PubMed, SovietRxiv, ChinaRxiv, Europe PMC, bioRxiv, medRxiv) with per-engine on/off toggles and graceful `skipped` degradation when a key/network is absent | `src/literature/*_client.py`, `src/literature/search_runner.py` |
-| Canonical `Paper` record + de-duplication/merge by DOI / arXiv / S2 / OpenAlex / title-hash | `src/literature/models.py`, `src/literature/corpus.py` |
+| Canonical `Paper` record + de-duplication/merge by DOI / PMID / arXiv / S2 / OpenAlex / title-hash | `src/literature/models.py`, `src/literature/corpus.py` |
 | Full-text resolution + download (Unpaywall / OA / direct PDF), opt-in & network-gated | `src/literature/fulltext_download.py` |
 | Descriptive statistics + consolidated meta-analysis report (counts, citation distribution + Gini, author productivity) | `src/analysis/descriptive_stats.py` |
 | Language & entity analysis over title/abstract/full text (offline, no LLM required) | `src/analysis/entities.py`, `src/analysis/text_processing.py` |

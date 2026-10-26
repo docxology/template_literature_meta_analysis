@@ -81,6 +81,14 @@ uv run pytest projects/templates/template_literature_meta_analysis/tests/ \
   --cov=projects/templates/template_literature_meta_analysis/src --cov-fail-under=90
 ```
 
+From this standalone checkout (repo root; `--extra dev` installs pytest and the
+test tooling):
+
+```bash
+uv sync --extra dev
+uv run pytest tests/ --cov=src --cov-fail-under=90
+```
+
 ## Determinism & Offline Default
 
 The committed `data/fixtures/<term>_corpus.jsonl` is **synthetic** (reserved
