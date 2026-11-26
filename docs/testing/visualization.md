@@ -13,4 +13,4 @@ Test suite validating correct `matplotlib` figure generation parameters. The sui
 uv run pytest tests/visualization/ -v
 ```
 
-See **[AGENTS.md](AGENTS.md)** for detailed module logic verification protocols spanning headless CI integration requirements.
+See **[AGENTS.md](../../tests/visualization/AGENTS.md)** for detailed module logic verification protocols spanning headless CI integration requirements.

@@ -24,20 +24,9 @@ Never hand-edit `output/`. To change generated manuscript text, edit source manu
 
 ## Rule 6: Use Generated Facts
 
-Live counts and coverage snapshots belong in `../../../../docs/_generated/COUNTS.md`. Public exemplar membership belongs in `../../../../docs/_generated/active_projects.md` and `../../../../docs/_generated/exemplar_roster.md`.
+Use the native test receipt for counts and coverage.
 
-## Rule 7: Verify The Touched Surface
+## Verification
 
-```bash
-uv run pytest projects/templates/template_literature_meta_analysis/tests/   --cov=projects/templates/template_literature_meta_analysis/src --cov-fail-under=90 -q
-uv run python projects/templates/template_literature_meta_analysis/scripts/02_meta_analysis_pipeline.py
-uv run python projects/templates/template_literature_meta_analysis/scripts/04_generate_figures.py --dpi 300
-uv run python projects/templates/template_literature_meta_analysis/scripts/05_inject_variables.py
-```
-
-For docs/manifest changes, also run:
-
-```bash
-uv run python scripts/audit/check_template_drift.py --strict --project templates/template_literature_meta_analysis
-uv run python scripts/docgen/exemplar_roster.py --check
-```
+Follow the [quickstart](quickstart.md) for the native coverage gate. For changes
+to data or the manuscript, use the [offline render and validation workflow](rendering_pipeline.md).

@@ -4,7 +4,7 @@ Syntax conventions for manuscript and project documentation in `template_literat
 
 ## Links
 
-Use descriptive Markdown links. Prefer repository-root paths in commands and prose, for example `projects/templates/template_literature_meta_analysis/src/literature/models.py`.
+Use descriptive Markdown links. Prefer repository-root paths in commands and prose, for example `src/literature/models.py`.
 
 ## Citations And Cross-References
 
@@ -33,7 +33,7 @@ Common token families:
 Detect unresolved tokens before rendering:
 
 ```bash
-rg "\{\{" projects/templates/template_literature_meta_analysis/output/manuscript
+rg "\{\{" output/manuscript
 ```
 
 ## Figures
@@ -63,5 +63,5 @@ Use Pandoc table captions below the table:
 Always include a language tag:
 
 ```bash
-uv run pytest projects/templates/template_literature_meta_analysis/tests/ -q
+uv run pytest tests/ -q
 ```

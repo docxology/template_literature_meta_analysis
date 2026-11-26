@@ -24,4 +24,4 @@ Evidence-registry for manuscript claims that are intentionally sourced from code
 2. Re-run evidence validation / pipeline stages that consume the ledger.
 3. Do not store generated CSV/JSON/PNG under `data/`.
 
-Quick orientation: [`README.md`](README.md).
+Quick orientation: [`README.md`](../docs/data.md).

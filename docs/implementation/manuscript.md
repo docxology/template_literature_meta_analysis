@@ -54,4 +54,4 @@ rendered = inject_variables(source_text, variables, filename="03_results_hypothe
 that every submodule imports (`from manuscript.variables._logging import logger`), so log
 output is consistently namespaced across the package.
 
-See [AGENTS.md](AGENTS.md) for agent-specific constraints.
+See [AGENTS.md](../../src/manuscript/AGENTS.md) for agent-specific constraints.

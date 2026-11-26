@@ -246,7 +246,7 @@ config) — flagged here for whoever next touches pytest's import-mode config.
 - ISC-5: read `search_runner.py` lines 476/502/520 — confirmed `engines.get(key, True)` IS checked for arxiv/s2/openalex in production, proving `engine_enabled()`'s bypass was a genuine mismatch, not intentional.
 - ISC-6/7: `pytest tests/literature/test_engine_dispatch.py` → 13 passed; coverage report shows `engine_dispatch.py` 30/30 stmts, 14/14 branches, 100.00%.
 - ISC-8..20: `Read` + `Grep` of each file post-edit confirmed the required strings/rows/sections are present (see inline greps during BUILD).
-- ISC-21/22/26: `pytest projects/templates/template_literature_meta_analysis/tests/literature/ --cov=.../src/literature --cov-fail-under=90` → "410 passed", coverage 94.42%.
+- ISC-21/22/26: `pytest tests/literature/ --cov=.../src/literature --cov-fail-under=90` → "410 passed", coverage 94.42%.
 - ISC-23/24: `git status --short` before/after shows only files under `template_literature_meta_analysis/` (plus its own ISA.md) changed; `output/` and `infrastructure/search/connectors/` untouched.
 - ISC-25: no `git push` command was ever issued this session (self-audit of full tool-call history).
 - ISC-27/28: `ruff check --no-cache` and `mypy --no-incremental` on `engine_dispatch.py` + `test_engine_dispatch.py` → both clean.

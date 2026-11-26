@@ -71,4 +71,4 @@ uniformly across all subfields.
 | `assertion_breakdown.png` | `plot_assertion_type_breakdown` | assertion_summary.json |
 | `assertion_summary.png` | `plot_assertion_summary` | assertion_summary.json |
 
-See [AGENTS.md](AGENTS.md) for constraints and behavioral notes.
+See [AGENTS.md](../../src/visualization/AGENTS.md) for constraints and behavioral notes.

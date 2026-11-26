@@ -50,7 +50,14 @@ FIGURES_DIR = OUTPUT_DIR / "figures"
 
 # Key artifact paths
 CORPUS_PATH = DATA_DIR / "corpus.jsonl"
-MANUSCRIPT_DIR = PROJECT_ROOT / "manuscript"
+def resolve_manuscript_dir(project_root: Path) -> Path:
+    """Use the maintained source tree, with support for older project layouts."""
+    canonical = project_root / "docs" / "manuscript"
+    legacy = project_root / "manuscript"
+    return canonical if canonical.is_dir() or not legacy.is_dir() else legacy
+
+
+MANUSCRIPT_DIR = resolve_manuscript_dir(PROJECT_ROOT)
 
 # ---------------------------------------------------------------------------
 # Analysis defaults (02_meta_analysis_pipeline.py)
@@ -115,6 +122,7 @@ __all__ = [
     "FIGURES_DIR",
     "CORPUS_PATH",
     "MANUSCRIPT_DIR",
+    "resolve_manuscript_dir",
     # Analysis defaults
     "DEFAULT_N_TOPICS",
     "DEFAULT_MAX_FEATURES",

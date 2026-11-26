@@ -7,4 +7,4 @@ render time.
 
 - [`../../AGENTS.md`](../../AGENTS.md)
 - [`extractors/AGENTS.md`](extractors/AGENTS.md)
-- [`README.md`](README.md)
+- [`README.md`](../../../docs/implementation/manuscript-variables.md)

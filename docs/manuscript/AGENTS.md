@@ -17,9 +17,9 @@ Source directory for the paper: all `.md` sections, `config.yaml`, `preamble.md`
 | `02c_methods_bibliometrics.md` | Stage 2: bibliometric analysis (TF-IDF, topic modeling, citation networks) |
 | `02d_methods_knowledge_graph.md` | Stage 3: nanopublications, RDF schema, citation-weighted scoring |
 | `02e_methods_viz_injection.md` | Stages 4–5: visualization pipeline and variable injection |
-| `03_results_hypothesis.md` | Eight hypothesis scores, evidence composition, temporal trends |
+| `03_results_hypothesis.md` | Configured hypothesis scores, evidence composition, temporal trends |
 | `03a_results_field_overview.md` | Corpus summary, domain distribution, growth dynamics (RQ1/RQ2) |
-| `03b_results_subfields.md` | Detailed characterization of A1/A2/B/C1–C5 domains |
+| `03b_results_subfields.md` | Detailed characterization of configured subfields |
 | `03c_results_text_analytics.md` | NMF topic modeling, vocabulary analysis, document embeddings |
 | `03d_results_citation_network.md` | Citation network topology, degree distribution, hub analysis |
 | `03e_results_reproducibility.md` | Workflow-graph reproducibility scoring, low-scoring-paper table |
@@ -30,7 +30,7 @@ Source directory for the paper: all `.md` sections, `config.yaml`, `preamble.md`
 | `08_appendix_accessibility.md` | FAIR data, cognitive ergonomics, decentralized science |
 | `98_symbols_glossary.md` | Mathematical notation table and abbreviations |
 | `99_references.md` | BibTeX bibliography directive (points to `references.bib`) |
-| `references.bib` | BibTeX source file (15 curated methodology/data-source entries) |
+| `references.bib` | BibTeX source file for methodology and data-source entries |
 
 ## Variable Injection System
 

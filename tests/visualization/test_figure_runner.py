@@ -378,8 +378,9 @@ def test_generate_all_figures_writes_figure_registry(tmp_path: Path) -> None:
     first_label = next(iter(registry.values()))["label"]
     assert first_label.startswith("fig:")
     assert first_label.replace("fig:", "") + ".png" in FIGURE_CAPTIONS
+    assert all(entry["metadata"]["alt_text"].strip() for entry in registry.values())
 
     # Second run should not duplicate registry entries
     generate_all_figures(args)
     registry_again = json.loads(registry_path.read_text(encoding="utf-8"))
-    assert len(registry_again) == len(registry)
+    assert registry_again == registry

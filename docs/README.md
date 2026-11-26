@@ -1,40 +1,21 @@
-# Literature Meta-Analysis Docs
+# Literature Meta-Analysis Documentation
 
-Project-local rulebook for `template_literature_meta_analysis`, a retargetable literature review and bibliometrics exemplar.
-
-## Start Here
-
-| Need | Read |
+| Task | Guide |
 | --- | --- |
-| Modify source or scripts | `agent_instructions.md`, then `architecture.md` |
-| Add or change tests | `testing_philosophy.md` |
-| Change manuscript tokens or PDF output | `rendering_pipeline.md` and `syntax_guide.md` |
-| Add generated artifacts | `output_inventory.md` and `output_conventions.md` |
-| Fork to a new review topic | `forking_guide.md` |
-| Diagnose a failure | `troubleshooting.md` |
+| Install the locked project environment and run tests | [Quickstart](quickstart.md) |
+| Reproduce the offline example and validate its publication | [Rendering and validation](rendering_pipeline.md) |
+| Edit the paper, bibliography, or review configuration | [Manuscript source](manuscript/README.md) |
+| Retarget the review or use live retrieval | [Forking guide](forking_guide.md), [standalone publication guide](standalone.md) |
+| Understand data provenance and the offline corpus | [Data](data.md), [synthetic fixture](fixtures.md) |
+| Find code and test responsibilities | [Architecture](architecture.md), [implementation](implementation/README.md), [testing](testing/README.md), [test patterns](test-patterns.md) |
+| Find a script or add a stage | [Script inventory](scripts.md), [script conventions](script-conventions.md) |
+| Edit manuscript formatting and injected variables | [Style](style_guide.md), [syntax](syntax_guide.md) |
+| Inspect release artifacts | [Output inventory](output_inventory.md), [output conventions](output_conventions.md) |
+| Diagnose problems | [Troubleshooting](troubleshooting.md), [FAQ](faq.md) |
+| Review maintenance context | [Backlog](backlog.md), [historical commissioning notes](historical-commissioning.md), [agent guidance](AGENTS.md) |
 
-## Canonical Commands
-
-```bash
-uv sync --group scientific --group llm
-uv run pytest projects/templates/template_literature_meta_analysis/tests/   --cov=projects/templates/template_literature_meta_analysis/src --cov-fail-under=90 -q
-uv run python projects/templates/template_literature_meta_analysis/scripts/02_meta_analysis_pipeline.py
-uv run python projects/templates/template_literature_meta_analysis/scripts/04_generate_figures.py --dpi 300
-uv run python projects/templates/template_literature_meta_analysis/scripts/05_inject_variables.py
-```
-
-Live test counts and coverage snapshots belong in `../../../../docs/_generated/COUNTS.md`; do not duplicate them here.
-
-## Boundary Summary
-
-- `docs/manuscript/config.yaml` owns the review topic, search engines, relevance keywords, hypotheses, and subfield taxonomy.
-- `src/literature/` owns retrieval, canonical records, corpus persistence, and de-duplication.
-- `src/analysis/` owns bibliometrics, TF-IDF, topics, embeddings, entities, and temporal metrics.
-- `src/knowledge_graph/` owns optional LLM extraction, hypothesis scoring, and nanopublications.
-- `src/visualization/` owns headless matplotlib figure generation.
-- `src/manuscript/variables/` owns `{{TOKEN}}` values.
-- `scripts/` are thin stage orchestrators.
-
-Generated `output/` files are tracked as public release artifacts when they
-stay below the 50 MB public output ceiling; regenerate them from source rather
-than editing them by hand.
+The maintained sections, citations, and active configuration live in
+[`docs/manuscript/`](manuscript/). The Python variable extractors live in
+[`src/manuscript/`](../src/manuscript/). The files in [`output/`](../output/)
+include the tracked publication snapshot. Generate offline fixture outputs in
+a disposable checkout to keep the fixtures, release evidence, and outputs attributable.

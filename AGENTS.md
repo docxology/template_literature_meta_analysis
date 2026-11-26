@@ -39,37 +39,21 @@ or config and regenerate.
 
 ## Regeneration Order
 
-For the deterministic offline path from the template repository root:
-
-```bash
-uv sync --group scientific --group llm
-uv run python projects/templates/template_literature_meta_analysis/scripts/generate_fixture_corpus.py
-uv run python projects/templates/template_literature_meta_analysis/scripts/02_meta_analysis_pipeline.py
-uv run python projects/templates/template_literature_meta_analysis/scripts/03_build_knowledge_graph.py --max-papers 0
-uv run python projects/templates/template_literature_meta_analysis/scripts/04_generate_figures.py --dpi 300
-uv run python projects/templates/template_literature_meta_analysis/scripts/06_fulltext_assessment.py
-uv run python projects/templates/template_literature_meta_analysis/scripts/07_literature_evaluation.py
-uv run python projects/templates/template_literature_meta_analysis/scripts/08_deep_research_dispatch.py
-uv run python projects/templates/template_literature_meta_analysis/scripts/09_export_bibliography.py
-uv run python projects/templates/template_literature_meta_analysis/scripts/05_inject_variables.py
-```
-
-Stage 01 (`01_literature_search.py`) is the live/network retrieval path. Use it only when intentionally refreshing the corpus from engines configured in `docs/manuscript/config.yaml`. It writes both the merged corpus and a deterministic `output/data/retrieval_report.json`; a legacy resume without that report is labelled explicitly and never assigned reconstructed engine counts.
+Follow the [offline generation sequence](docs/rendering_pipeline.md#run-the-offline-fixture-workflow)
+from a disposable project checkout. Script 01 performs live retrieval and
+writes the merged corpus and retrieval report. A legacy resume without a
+retrieval report carries an explicit marker for unavailable per-engine counts.
 
 ## Verification Commands
 
+Install the project dependencies as described in the [quickstart](docs/quickstart.md).
+
 ```bash
-uv run python scripts/pipeline/stage_01_test.py --project templates/template_literature_meta_analysis --project-only
-uv run python scripts/audit/check_template_drift.py --strict --project templates/template_literature_meta_analysis
-uv run python scripts/docgen/exemplar_roster.py --check
-uv run python scripts/audit/check_tracked_all.py
+uv run --no-sync pytest tests/ --cov=src --cov-fail-under=90
 ```
 
-Stage 01 creates/uses the project's isolated environment and installs the
-dependencies declared in its `pyproject.toml`; do not substitute the root
-environment's direct `pytest` command on a fresh clone.
-
-Run the focused stage tests for the part you changed. For broad source/doc changes, run the project coverage gate plus the repo public-scope drift and guard checks.
+Run the [renderer and validation stages](docs/rendering_pipeline.md#render-and-validate)
+for changes to manuscript sources, figures, or publication paths.
 
 ## Contracts
 

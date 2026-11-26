@@ -25,5 +25,5 @@ uv run pytest tests/reproducibility/ -v
 uv run pytest tests/reproducibility/test_reproducibility_extraction.py tests/reproducibility/test_runner.py -v
 ```
 
-See **[AGENTS.md](AGENTS.md)** for detailed module logic verification
+See **[AGENTS.md](../../tests/reproducibility/AGENTS.md)** for detailed module logic verification
 protocols and data-mocking guidelines.

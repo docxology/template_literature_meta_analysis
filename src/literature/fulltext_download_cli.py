@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
+from config import resolve_manuscript_dir
 from config import CORPUS_PATH as DEFAULT_CORPUS_PATH
 from config_loader import load_fulltext_config, resolve_fulltext_directory
 from literature.corpus import Corpus
@@ -166,7 +167,7 @@ def main(
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     root = Path(project_root) if project_root is not None else DEFAULT_PROJECT_ROOT
-    config_path = Path(args.config) if args.config else root / "manuscript" / "config.yaml"
+    config_path = Path(args.config) if args.config else resolve_manuscript_dir(root) / "config.yaml"
     result = run_fulltext_download(
         project_root=root,
         corpus_path=Path(args.corpus),

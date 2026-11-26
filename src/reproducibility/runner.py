@@ -7,7 +7,7 @@ new) via the pure :mod:`reproducibility.scoring` functions, and write the
 three JSON/JSONL artifacts.
 
 Full-text availability is opt-in and gated by ``project_config.fulltext``
-in ``manuscript/config.yaml`` (see :func:`config_loader.load_fulltext_config`).
+in ``docs/manuscript/config.yaml`` (see :func:`config_loader.load_fulltext_config`).
 When it is disabled and the caller did not pass ``--fulltext-dir``
 explicitly, this module logs a loud warning (never a silent no-op) and
 still produces a valid, empty-but-well-formed set of outputs — the same
@@ -24,6 +24,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from config import resolve_manuscript_dir
 from config_loader import load_fulltext_config, load_reproducibility_config, resolve_fulltext_directory
 from config_validation import require_valid_config
 from knowledge_graph.llm_config import LLMConfig
@@ -110,7 +111,7 @@ def _score_to_dict(score: ReproducibilityScore, *, quote_verification_rate: floa
 def run_reproducibility_pipeline(args: argparse.Namespace, *, project_root: Path) -> None:
     """Build reproducibility workflow graphs and score them for one corpus."""
     run_logger = logging.getLogger("reproducibility_assessment")
-    config_path = Path(args.config) if args.config else project_root / "manuscript" / "config.yaml"
+    config_path = Path(args.config) if args.config else resolve_manuscript_dir(project_root) / "config.yaml"
     if args.config and not config_path.exists():
         raise FileNotFoundError(f"Configuration file does not exist: {config_path}")
     if config_path.exists():

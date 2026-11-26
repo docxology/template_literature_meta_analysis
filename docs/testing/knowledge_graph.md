@@ -18,4 +18,4 @@ uv run pytest tests/knowledge_graph/ -v
 uv run pytest tests/knowledge_graph/test_llm_*.py -v
 ```
 
-See **[AGENTS.md](AGENTS.md)** for detailed module logic verification protocols and data-mocking guidelines.
+See **[AGENTS.md](../../tests/knowledge_graph/AGENTS.md)** for detailed module logic verification protocols and data-mocking guidelines.

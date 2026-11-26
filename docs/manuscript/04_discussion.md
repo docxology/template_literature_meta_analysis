@@ -10,7 +10,7 @@ evidence-landscape instrument, not a verdict.
 
 The {{NUM_TOPICS}} topics extracted by NMF provide a data-driven complement to the
 keyword-based subfield taxonomy. Where the taxonomy assigns each paper to a single bucket,
-the topics reveal overlapping thematic structure: a paper on modafinil's cognitive effects
+the topics reveal overlapping thematic structure: a paper on {{SEARCH_TERM}}'s cognitive effects
 in ADHD patients belongs to the "Psychiatry" subfield but also loads on the "Cognitive
 Enhancement" and "ADHD Treatment" topics. This multi-resolution view is more informative
 than either approach alone.
@@ -24,12 +24,10 @@ reverse-engineering the merged corpus. New runs write those facts directly to
 `output/data/retrieval_report.json`; a resumed legacy snapshot is explicitly labelled
 `resume_without_prior_retrieval_report` rather than being given invented provenance.
 
-The max-results cap of 1,000 per engine means the full literature is larger than the
-retrieved corpus; the {{CORPUS_SIZE}} records represent a bounded sample rather than the
-complete literature. The citation network resolution rate of
-{{CITATION_RESOLUTION_PCT}}\% reflects this: many cited works lie outside the retrieved
-slice. Increasing the cap or adding more engines would improve coverage but also
-increase runtime and API load.
+The configured result cap bounds engine retrieval. For the input used here,
+{{CITATION_RESOLUTION_PCT}}\% of references resolve to another corpus record.
+For a live review, a broader query, a higher cap, or more sources may improve
+coverage and increase runtime and API load.
 
 ## Honest Defaults
 
@@ -45,8 +43,8 @@ retrieval report; fixture-only runs demonstrate machinery, not findings about
 Several limitations bound the interpretation of results:
 
 - **Coverage is bounded by the enabled engines and the query.** The max-results cap
-  truncates each engine's contribution. Semantic Scholar's rate limiting excluded a
-  major source; a Semantic Scholar API key would resolve this.
+  caps each engine's contribution. Use the retrieval report to distinguish
+  returned counts, skipped engines, and rate limits in a live run.
 
 - **Subfield classification is keyword-based** and only as good as the configured
   taxonomy. Ambiguous papers may be misclassified; a classifier based on embeddings or
@@ -57,8 +55,8 @@ Several limitations bound the interpretation of results:
   the quality of nearest-neighbour retrieval and clustering.
 
 - **Hypothesis scoring depends on an external language model.** Without Ollama running,
-  scores read *pending*; with Ollama configured (as in this run, with {{TOTAL_ASSERTIONS}}
-  assertions extracted), scores are populated. The scoring is also sensitive to prompt
+  or precomputed assertions, scores may read *pending*. This run used
+  {{TOTAL_ASSERTIONS}} extracted assertions. Scoring is sensitive to prompt
   design and model choice; the default `gemma3:4b` is a lightweight model suitable for
   demonstration but may miss nuanced assertions.
 

@@ -33,7 +33,7 @@ Package (`variables/`: `compute.py`, `context.py`, `formatters.py`, `inject.py`,
 ## Running Injection Manually
 
 ```bash
-uv run python projects/templates/template_literature_meta_analysis/scripts/05_inject_variables.py
+uv run python scripts/05_inject_variables.py
 ```
 
 Output: `output/manuscript/*.md` — rendered copies of all manuscript files with all `{{VAR}}`

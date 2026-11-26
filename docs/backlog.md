@@ -1,7 +1,7 @@
 # template_literature_meta_analysis TODO
 
 This backlog is future-only. Completed validation and dated review evidence are preserved in
-[`docs/maintenance/exemplar-backlog-history.md`](../../../docs/maintenance/exemplar-backlog-history.md)
+[`docs/maintenance/exemplar-backlog-history.md`](https://github.com/docxology/template/blob/87704feae0a4490ef7dad9c931d268e8c30273c2/docs/maintenance/exemplar-backlog-history.md)
 or in source-owned generated receipts. Each active row must retain a stable ID, size, dependency,
 next action, proving artifact, acceptance command, and negative control; absence of an owner or external receipt
 keeps a capability blocked rather than silently promoting it.
@@ -43,7 +43,7 @@ No active rows are currently scoped at this size.
 
 | ID | Status | Size | Dependency | Next action / unblock condition | Proving artifact | Acceptance command | Negative control |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `LIT-ENGINE-POLITENESS-1` | blocked-external | Medium | Retrieval engine adapters | Obtain the required owner or external receipt to unblock; run live-run smoke with skipped/limited engine rows and attach `output/data/retrieval_run_manifest.json`. | `output/data/retrieval_run_manifest.json` | `uv run pytest projects/templates/template_literature_meta_analysis/tests -q --no-cov --timeout=120` | retry storm or missing rate-limit receipt must fail |
+| `LIT-ENGINE-POLITENESS-1` | blocked-external | Medium | Retrieval engine adapters | Obtain the required owner or external receipt to unblock; run live-run smoke with skipped/limited engine rows and attach `output/data/retrieval_run_manifest.json`. | `output/data/retrieval_run_manifest.json` | `uv run pytest tests -q --no-cov --timeout=120` | retry storm or missing rate-limit receipt must fail |
 
 ## Major upcoming
 

@@ -7,7 +7,7 @@ Tests for `template_literature_meta_analysis` enforce the repository no-mocks po
 Project `src/` coverage must remain at or above 90%:
 
 ```bash
-uv run pytest projects/templates/template_literature_meta_analysis/tests/   --cov=projects/templates/template_literature_meta_analysis/src --cov-fail-under=90
+uv run pytest tests/   --cov=src --cov-fail-under=90
 ```
 
 Live collected test counts and measured coverage snapshots belong in `../../../docs/_generated/COUNTS.md`.

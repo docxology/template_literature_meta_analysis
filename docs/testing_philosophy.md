@@ -2,7 +2,7 @@
 
 The suite enforces the repository **no-mocks** rule: real code runs on real data,
 HTTP is served locally by `pytest-httpserver`, and file I/O uses real temp files.
-`src/` coverage is gated at **≥ 90 %**. See [`../tests/PATTERNS.md`](../tests/PATTERNS.md)
+`src/` coverage is gated at **≥ 90 %**. See [test patterns](test-patterns.md)
 for the concrete per-boundary patterns.
 
 ## Why no mocks

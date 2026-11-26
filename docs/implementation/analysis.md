@@ -71,4 +71,4 @@ Key functions:
 | CAGR | `(end_year/start_year)^(1/n) - 1` | Measures annual field activity rate, not cumulative size |
 | Citation | Directed in/out degree (not `edges/nodes`) | Correct for directed graphs; in-degree ≠ out-degree in citation networks |
 
-See [AGENTS.md](AGENTS.md) for agent-specific constraints.
+See [AGENTS.md](../../src/analysis/AGENTS.md) for agent-specific constraints.
