@@ -10,7 +10,7 @@ tags: [exemplar, literature, meta-analysis, bibliometrics]
 # template-literature-meta-analysis
 
 Project-scoped skill for this exemplar — the repository root of this standalone mirror
-(monorepo path: `projects/templates/template_literature_meta_analysis/`). Load this when working inside the project.
+(monorepo path: ``). Load this when working inside the project.
 
 ## When to Use
 
@@ -22,15 +22,15 @@ Project-scoped skill for this exemplar — the repository root of this standalon
 
 ## Quick Reference
 
+From the project root, install the [locked project dependencies](../../../docs/quickstart.md)
+and run the coverage gate.
+
 ```bash
-# From the repository root
-# Canonical fresh-clone gate: provisions the project's isolated dependencies.
-uv run python scripts/pipeline/stage_01_test.py --project templates/template_literature_meta_analysis --project-only
-uv run python scripts/pipeline/stage_02_analysis.py --project templates/template_literature_meta_analysis
-uv run python scripts/pipeline/stage_03_render.py --project templates/template_literature_meta_analysis
-uv run python scripts/pipeline/stage_04_validate.py --project templates/template_literature_meta_analysis
-uv run python scripts/pipeline/stage_05_copy.py --project templates/template_literature_meta_analysis
+uv run --no-sync pytest tests/ --cov=src --cov-fail-under=90
 ```
+
+Use the [offline workflow](../../../docs/rendering_pipeline.md) for generation,
+hydration, rendering, and validation.
 
 ## Pitfalls
 
@@ -38,17 +38,16 @@ uv run python scripts/pipeline/stage_05_copy.py --project templates/template_lit
   `infrastructure/`, not in `scripts/`.
 - **No mocks.** All tests must use real data, real files, and real
   computation.
-- **Use the Stage-01 test command from the monorepo root.** A direct root
+- **Use the locked project test command from the standalone project root.** A direct root
   `pytest` invocation does not provision this exemplar's scientific
   dependencies.
 - **Outputs are disposable.** Never hand-edit `output/` — regenerate from
   source and config.
-- **Run from the repo root.** Commands assume the template monorepo root
+- **Run from the repo root.** Commands assume the standalone project root
   as working directory unless the child `AGENTS.md` states otherwise.
 
 ## Cross-refs
 
 - Project contract: [`AGENTS.md`](../../../AGENTS.md)
 - README: [`README.md`](../../../README.md)
-- TODO: [`TODO.md`](../../../TODO.md)
-- Repo rules: [`AGENTS.md`](../../../AGENTS.md)
+- [Maintenance backlog](../../../docs/backlog.md)

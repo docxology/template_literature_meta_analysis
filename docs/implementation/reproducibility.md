@@ -6,7 +6,7 @@ each paper's own described pipeline into a workflow graph of discrete steps
 reproducibility scores over that graph. Implements the workflow-graph model
 from arXiv:2605.02651, with two source-paper ambiguities resolved by explicit
 modeling choices (see `scoring.py`'s module docstring and
-[AGENTS.md](AGENTS.md) for the invariants that protect those choices).
+[AGENTS.md](../../src/reproducibility/AGENTS.md) for the invariants that protect those choices).
 
 ## Components
 
@@ -155,11 +155,11 @@ Outputs (under `<output_dir>/data/`):
 
 ## Scoring Formula
 
-See [AGENTS.md](AGENTS.md) for the full `R = sqrt(Rc * Rs)` derivation, the
+See [AGENTS.md](../../src/reproducibility/AGENTS.md) for the full `R = sqrt(Rc * Rs)` derivation, the
 four node types, and the two ambiguity resolutions (`rc3` scope, `rc4`
 normalization) this implementation fixes relative to the source paper
 (arXiv:2605.02651). Key edge case: an empty graph (zero nodes) short-circuits
 to an all-zero `ReproducibilityScore` before any division or `sqrt` — it can
 never raise `ZeroDivisionError` or a `math.sqrt` domain error.
 
-See [AGENTS.md](AGENTS.md) for agent-specific constraints.
+See [AGENTS.md](../../src/reproducibility/AGENTS.md) for agent-specific constraints.

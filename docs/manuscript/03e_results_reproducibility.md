@@ -22,12 +22,10 @@ their content and structural component scores.
 
 This stage is optional and gated by full-text availability. With no fulltext
 available and no language model configured, the stage is skipped and the
-reproducibility aggregates read *pending* — the same graceful-degradation convention used by the
-knowledge-graph assertion-extraction stage (see
-[`02d_methods_knowledge_graph.md`](02d_methods_knowledge_graph.md)). When fulltext is
-available and a language model is configured (as in this instance, with
-{{REPRODUCIBILITY_N_PAPERS_SCORED}} papers scored via Ollama), the mean score,
-low-score count, and per-paper table are populated from extracted workflow graphs.
+reproducibility aggregates read *pending*. The knowledge-graph assertion stage
+uses the same convention. When full text and a configured language model are
+available, the mean score, low-score count, and table come from the extracted
+workflow graphs.
 
 ## Interpretation
 

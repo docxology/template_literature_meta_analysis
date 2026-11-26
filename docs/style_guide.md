@@ -31,8 +31,8 @@ Use real `Paper` objects, JSON/JSONL fixtures, `tmp_path`, and `pytest-httpserve
 Use full project paths in commands from the repository root:
 
 ```bash
-uv run pytest projects/templates/template_literature_meta_analysis/tests/   --cov=projects/templates/template_literature_meta_analysis/src --cov-fail-under=90
-uv run python projects/templates/template_literature_meta_analysis/scripts/02_meta_analysis_pipeline.py
+uv run --no-sync pytest tests/ --cov=src --cov-fail-under=90
+uv run python scripts/02_meta_analysis_pipeline.py
 ```
 
 ## Error Messages

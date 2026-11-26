@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 from typing import Callable, TypedDict
 
+from config import resolve_manuscript_dir
 from config_loader import load_search_config
 from config_validation import require_valid_search_config
 from literature.corpus import Corpus
@@ -235,7 +236,7 @@ def run_literature_search(
     clients without changing production defaults.
     """
     logger = logging.getLogger("literature_search")
-    config_path = Path(args.config) if args.config else project_root / "manuscript" / "config.yaml"
+    config_path = Path(args.config) if args.config else resolve_manuscript_dir(project_root) / "config.yaml"
     if args.config and not config_path.exists():
         raise FileNotFoundError(f"Configuration file does not exist: {config_path}")
     if config_path.exists():

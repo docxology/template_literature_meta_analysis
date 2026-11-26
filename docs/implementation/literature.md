@@ -169,4 +169,4 @@ Corpus size, engine mix, and year range vary per run/topic — see the generated
 variables for the authoritative figures of the most recent run, rather than a hand-maintained
 count here.
 
-See [AGENTS.md](AGENTS.md) for agent constraints and extension guidance.
+See [AGENTS.md](../../src/literature/AGENTS.md) for agent constraints and extension guidance.

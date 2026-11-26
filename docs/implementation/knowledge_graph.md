@@ -80,4 +80,4 @@ See `manuscript/07_appendix_technical.md §Citation-Weighted Hypothesis Scoring 
 `hypothesis.py:score_hypothesis()`. Key edge case: `score = 0` is ambiguous — it can mean no
 assertions OR perfectly balanced support/contradict. Always report assertion counts alongside scores.
 
-See [AGENTS.md](AGENTS.md) for agent-specific constraints.
+See [AGENTS.md](../../src/knowledge_graph/AGENTS.md) for agent-specific constraints.

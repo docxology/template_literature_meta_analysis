@@ -9,11 +9,13 @@ from typing import Any
 import pytest
 import yaml
 
+from config import resolve_manuscript_dir
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATHS = (
-    PROJECT_ROOT / "manuscript" / "config.yaml",
-    PROJECT_ROOT / "manuscript" / "config.yaml.example",
+    resolve_manuscript_dir(PROJECT_ROOT) / "config.yaml",
+    resolve_manuscript_dir(PROJECT_ROOT) / "config.yaml.example",
 )
 DEFAULT_ANALYSIS_SCRIPTS = [
     "02_meta_analysis_pipeline.py",
@@ -93,3 +95,13 @@ def test_declared_stage_order_respects_fulltext_dependencies(config_path: Path) 
     reproducibility = next(stage for stage in stages if stage["script"] == "10_reproducibility_assessment.py")
     assert "output/fulltext/" in fulltext["outputs"]
     assert "output/fulltext/" in reproducibility["inputs"]
+
+
+def test_canonical_manuscript_takes_precedence_over_legacy_directory(tmp_path: Path) -> None:
+    legacy = tmp_path / "manuscript"
+    legacy.mkdir()
+    assert resolve_manuscript_dir(tmp_path) == legacy
+
+    canonical = tmp_path / "docs" / "manuscript"
+    canonical.mkdir(parents=True)
+    assert resolve_manuscript_dir(tmp_path) == canonical

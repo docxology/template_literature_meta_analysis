@@ -86,7 +86,7 @@ testing:
 # network/LLM stages explicitly: scripts/01_literature_search.py,
 # scripts/03_build_knowledge_graph.py --max-papers 0, and the opt-in full-text
 # chain `11_fulltext_download.py` then `10_reproducibility_assessment.py` (see
-# scripts/README.md). The latter two must remain outside this default allowlist.
+# docs/scripts.md). The latter two must remain outside this default allowlist.
 analysis:
   scripts:
     - 02_meta_analysis_pipeline.py

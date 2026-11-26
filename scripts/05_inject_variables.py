@@ -17,7 +17,7 @@ from _bootstrap import bootstrap_project
 
 PROJECT_ROOT = bootstrap_project(include_infrastructure=True)
 
-from config import PROJECT_NAME
+from config import PROJECT_NAME, resolve_manuscript_dir
 from infrastructure.core.logging.utils import get_logger, log_operation
 from manuscript.variables import compute_variables, inject_variables
 
@@ -50,12 +50,12 @@ def resolve_project_dir(project_name: str) -> Path:
 def main() -> int:
     """CLI entry point."""
     parser = argparse.ArgumentParser(description="Inject pipeline variables into manuscript templates")
-    parser.add_argument("--project", default=PROJECT_NAME)
+    parser.add_argument("--project", help=f"Project to hydrate (default: this {PROJECT_NAME} checkout)")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    project_dir = resolve_project_dir(args.project)
-    manuscript_dir = project_dir / "manuscript"
+    project_dir = resolve_project_dir(args.project) if args.project else PROJECT_ROOT
+    manuscript_dir = resolve_manuscript_dir(project_dir)
     output_dir = project_dir / "output"
     rendered_dir = output_dir / "manuscript"
 
@@ -75,7 +75,7 @@ def main() -> int:
         # Authoring docs are not manuscript content: they describe the token
         # system (and so legitimately contain example placeholders). They must
         # not be injected or rendered into the paper.
-        skip_docs = {"README.md", "AGENTS.md", "SYNTAX.md"}
+        skip_docs = {"README.md", "AGENTS.md", "SYNTAX.md", "MANUSCRIPT_STATUS.md"}
         for md_file in sorted(manuscript_dir.glob("*.md")):
             if md_file.name in skip_docs:
                 continue

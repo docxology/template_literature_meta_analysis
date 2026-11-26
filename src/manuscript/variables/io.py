@@ -6,12 +6,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+from config import resolve_manuscript_dir
 from manuscript.variables._logging import logger
 
 
 def load_config(project_root: Path) -> dict[str, Any]:
     """Load config from a file."""
-    config_path = project_root / "manuscript" / "config.yaml"
+    config_path = resolve_manuscript_dir(project_root) / "config.yaml"
     if not config_path.exists():
         logger.warning("config.yaml not found at %s; domain tokens use fallbacks", config_path)
         return {}

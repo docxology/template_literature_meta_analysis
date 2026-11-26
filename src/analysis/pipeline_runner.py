@@ -10,6 +10,7 @@ from pathlib import Path
 
 import networkx as nx
 
+from config import resolve_manuscript_dir
 from analysis.citation_network import (
     build_citation_graph,
     build_reference_index,
@@ -51,7 +52,7 @@ def run_meta_analysis_pipeline(args: argparse.Namespace, *, project_root: Path) 
     papers = [p for p in corpus.papers if p.year is None or p.year >= args.min_year]
     logger.info("Loaded %d papers (filtered >= %d)", len(papers), args.min_year)
 
-    config_path = project_root / "manuscript" / "config.yaml"
+    config_path = resolve_manuscript_dir(project_root) / "config.yaml"
     classified = classify_corpus(papers, config_path=config_path)
     subfield_counts = {sf: len(plist) for sf, plist in classified.items()}
     subfield_path = data_dir / "subfield_classification.json"

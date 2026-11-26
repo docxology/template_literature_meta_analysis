@@ -7,13 +7,14 @@ descriptive statistics, language/entity analysis, document embeddings, citation 
 temporal bibliometrics, an optional knowledge-graph layer, and an auto-injected
 manuscript.
 
-![Literature meta-analysis field summary across the bundled synthetic fixture corpus](output/figures/field_summary.png)
+![Literature meta-analysis field summary from the tracked publication snapshot](output/figures/field_summary.png)
 
-The bundled default term is **`modafinil`** — a wakefulness-promoting agent with a
-large, multi-disciplinary literature (clinical, cognitive, pharmacological,
-psychiatric) that exercises every analysis path. Everything runs **offline and
-deterministically** out of the box from a committed synthetic fixture corpus; a live
-networked run swaps in real records.
+The default topic is modafinil. The [bundled synthetic corpus](docs/fixtures.md)
+exercises the offline analysis workflow. The tracked figure above belongs to the
+[publication snapshot](docs/output_inventory.md).
+
+Start with the [documentation index](docs/README.md), [quickstart](docs/quickstart.md),
+or [offline rendering guide](docs/rendering_pipeline.md).
 
 Full-text provenance has two intentionally separate surfaces: `output/data/fulltext_assessment.json`
 summarizes declared corpus availability, while `output/fulltext/fulltext_inventory.json`
@@ -82,31 +83,9 @@ _Keywords: modafinil, meta-analysis, literature retrieval, bibliometrics, record
 _Status legend: ✅ published (durable identifier recorded in `config.yaml`) · 🔵 reserved (identifier reserved but not yet registered by final publication) · ⚪ available (adapter implemented and locally verifiable) · 🟡 planned. This block is generated — edit `docs/manuscript/config.yaml`, then regenerate with `uv run python -m infrastructure.publishing.status_report --project <path> --write`._
 <!-- PUBLISHING-STATUS:END -->
 
-The 3 platforms still shown ⚪ available are not automatable to "published" with
-current tooling/credentials, not an oversight: **arXiv** has no submission API
-in this codebase (`infrastructure.publishing.arxiv` only prepares a local
-tarball — a human must upload it via arxiv.org and the resulting `arxiv` URL
-would then be added to `publication.published_artifacts`); **Cloudflare
-Pages** needs a `CLOUDFLARE_ACCOUNT_ID` the configured API token cannot
-auto-discover; **IPFS (Web3.Storage)** has no `WEB3_STORAGE_TOKEN` configured.
-
-- Canonical renderer: [docxology/template](https://github.com/docxology/template) with `--project templates/template_literature_meta_analysis`
-- Tracked outputs: [`output/`](output/) in this project and `output/templates/template_literature_meta_analysis/` in the monorepo; public output files above 50 MB stay out of git.
-
-To regenerate this exemplar from the public monorepo:
-
-```bash
-git clone https://github.com/docxology/template
-cd template
-uv sync
-./run.sh --project templates/template_literature_meta_analysis --pipeline --core-only
-uv run python scripts/pipeline/stage_04_validate.py --project templates/template_literature_meta_analysis
-uv run python scripts/pipeline/stage_05_copy.py --project templates/template_literature_meta_analysis
-```
-
-Standalone repositories are publication mirrors for source, DOI metadata, and
-tracked rendered artifacts. Use the monorepo above when you need the full shared
-infrastructure, pipeline stages, or cross-template validation.
+See the [rendering guide](docs/rendering_pipeline.md) for the pinned
+[docxology/template](https://github.com/docxology/template) workflow and the
+[standalone publication guide](docs/standalone.md) for release surfaces.
 
 ## What you get
 
@@ -145,15 +124,12 @@ public exemplar also tracks its latest publication-evidence snapshot in Git. The
 output, and the project test suite plus the ≥90 % coverage gate validate `src/`
 before any figures or manuscript numbers are trusted.
 
-Run the project gate from the monorepo root through Stage 01 so it provisions
-the exemplar's isolated dependencies before collecting tests:
+From the locked project environment described in the [quickstart](docs/quickstart.md),
+run the project test gate.
 
 ```bash
-uv run python scripts/pipeline/stage_01_test.py --project templates/template_literature_meta_analysis --project-only
+uv run --no-sync pytest tests/ --cov=src --cov-fail-under=90
 ```
-
-The direct `pytest` form is only appropriate from an already-synchronized
-project environment; the Stage-01 command above is the fresh-clone contract.
 
 ## Determinism & honesty
 
@@ -161,7 +137,7 @@ project environment; the Stage-01 command above is the fresh-clone contract.
   `10.5555/` test DOIs, generated authors). It demonstrates the machinery offline and
   is byte-stable across runs. It is **not** an empirical finding about modafinil.
 - Real bibliometric claims require a live retrieval run plus regenerated figures,
-  reports, and manuscript variables. See [`STANDALONE.md`](STANDALONE.md).
+  reports, and manuscript variables. See [standalone guide](docs/standalone.md).
 
 ## Layout
 
@@ -178,35 +154,5 @@ docs/manuscript/          config.yaml (the control surface) + sections
 data/fixtures/       committed deterministic offline corpus
 ```
 
-See [`AGENTS.md`](AGENTS.md) for the full module/API reference and [`docs/`](docs/)
+See [`AGENTS.md`](AGENTS.md) for the full module/API reference and [documentation index](docs/README.md)
 for architecture, testing philosophy, and the rendering pipeline.
-
-<!-- foam-orphan-nav:start (hand-maintained: links sub-docs so they are reachable; no generator refreshes or validates this block) -->
-
-## Directory & sub-document map
-
-Navigation links to in-tree documents (keeps them discoverable):
-
-- [template_literature_meta_analysis TODO](TODO.md)
-- [data/fixtures/ — agent reference](data/fixtures/AGENTS.md)
-- [data/fixtures/](data/fixtures/README.md)
-- [docs/ - Agent-Facing Documentation Hub](docs/AGENTS.md)
-- [Output Directory Conventions](docs/output_conventions.md)
-- [Rendering Pipeline](docs/rendering_pipeline.md)
-- [Style Guide - Literature Meta-Analysis Exemplar](docs/style_guide.md)
-- [AGENTS.md — scripts/ Directory](scripts/AGENTS.md)
-- [Script Conventions](scripts/CONVENTIONS.md)
-- [Scripts - Literature Meta-Analysis Pipeline](scripts/README.md)
-- [Source Code - Agent Directives](src/AGENTS.md)
-- [Source Modules](src/README.md)
-- [Instructions](src/SKILL.md)
-- [Instructions](src/analysis/SKILL.md)
-- [Instructions](src/knowledge_graph/SKILL.md)
-- [Instructions](src/literature/SKILL.md)
-- [Instructions](src/visualization/SKILL.md)
-- [src/visualization/advanced/ — agent reference](src/visualization/advanced/AGENTS.md)
-- [src/visualization/advanced/](src/visualization/advanced/README.md)
-- [Test Suite Architecture](tests/AGENTS.md)
-- [Tests - Literature Meta-Analysis](tests/README.md)
-
-<!-- foam-orphan-nav:end -->

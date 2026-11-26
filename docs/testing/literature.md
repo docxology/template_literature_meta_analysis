@@ -17,4 +17,4 @@ uv run pytest tests/literature/ -v
 uv run pytest tests/literature/test_corpus.py -v
 ```
 
-See **[AGENTS.md](AGENTS.md)** for detailed module logic verification protocols concerning local HTTP serving boundaries over standard library mocking techniques.
+See **[AGENTS.md](../../tests/literature/AGENTS.md)** for detailed module logic verification protocols concerning local HTTP serving boundaries over standard library mocking techniques.

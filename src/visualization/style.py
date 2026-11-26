@@ -11,6 +11,9 @@ from pathlib import Path
 
 import yaml
 
+from config import resolve_manuscript_dir
+
+
 VIZ_CONFIG: dict = {
     "figure_size": (12, 7),
     "dpi": 300,
@@ -64,7 +67,7 @@ HYPOTHESIS_NAMES: dict[str, str] = {
 
 def load_viz_labels_from_config(project_root: Path) -> None:
     """Overlay subfield and hypothesis labels from manuscript config when present."""
-    config_path = project_root / "manuscript" / "config.yaml"
+    config_path = resolve_manuscript_dir(project_root) / "config.yaml"
     if not config_path.exists():
         return
     cfg = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}

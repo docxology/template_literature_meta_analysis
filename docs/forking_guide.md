@@ -1,57 +1,21 @@
 # Forking & Re-targeting Guide — `template_literature_meta_analysis`
 
-> How to point this template at **your own topic** — a new search term, a new
-> keyword/query set, a new subfield taxonomy, and new hypotheses — and get a
-> complete, reproducible literature review out the other end. The whole template
-> is **config-driven**: in the common case you edit one YAML file and re-run.
-> The bundled instance is `modafinil`; this guide shows how to make it yours.
+Start with a fork of this repository and use the [renderer setup](rendering_pipeline.md#set-up-the-renderer-and-project)
+to clone it into `projects/working/<project-name>`. Run project scripts inside
+that checkout. Pass `--project working/<project-name>` to the shared renderer
+from its root.
 
-## The one idea to internalize
+Edit the topic, query, filters, taxonomy, and hypotheses in
+[`docs/manuscript/config.yaml`](manuscript/config.yaml). Review the manuscript prose,
+references, and release metadata for the new topic. Update the root citation
+sidecars and package metadata when preparing a new publication.
 
-**Every domain-specific fact in the paper is injected from
-[`docs/manuscript/config.yaml`](../docs/manuscript/config.yaml) and the pipeline's own
-outputs.** The manuscript prose contains **no hard-coded topic terms** — it is
-written entirely in `{{TOKENS}}` (`{{SEARCH_TERM_TITLE}}`, `{{CORPUS_SIZE}}`,
-`{{SUBFIELD_TABLE}}`, `{{HYPOTHESIS_TABLE}}`, …). Re-targeting the config
-re-targets the entire paper; you should not need to touch a single `docs/manuscript/*.md`
-body file to change topics. (Verified: the only place "modafinil" appears in
-`docs/manuscript/` is the authoring `README.md`.)
-
-## TL;DR
-
-```bash
-# 0. From the repo root, install deps once
-uv sync
-
-# 1. Clean-copy the exemplar to your new project name (local-only fork)
-uv run python scripts/audit/copy_exemplar.py \
-  --source templates/template_literature_meta_analysis \
-  --dest projects/working/my_review \
-  --new-name my_review
-
-# 2. Edit ONE file: projects/working/my_review/docs/manuscript/config.yaml
-#    → project_config.search.{term,query,arxiv_queries,relevance_keywords}
-#    → project_config.subfield_keywords  (your taxonomy)
-#    → project_config.hypothesis_definitions  (your hypotheses)
-
-# 3. Run the pipeline (from inside the project dir)
-cd projects/working/my_review
-uv run python scripts/01_literature_search.py --clear-corpus --no-resume
-uv run python scripts/02_meta_analysis_pipeline.py
-uv run python scripts/04_generate_figures.py
-uv run python scripts/05_inject_variables.py     # fails loudly on any unresolved token
-
-# 4. Render the PDF (from the repo root)
-cd -
-uv run python scripts/pipeline/stage_03_render.py --project working/my_review
-```
-
-**⚠️ Confidentiality invariant.** The repo `.gitignore` tracks **only** the public
-canonical exemplars under `projects/templates/` (see
-[`../../../docs/_generated/active_projects.md`](../../../../docs/_generated/active_projects.md)).
-Your fork under `projects/working/my_review/` is local-only and won't be pushed
-even with `git add -f` — `scripts/audit/check_tracked_projects.py` blocks it in
-`pre-push-quick`. See the root [`CLAUDE.md`](../../../../CLAUDE.md) "CONFIDENTIALITY INVARIANT".
+For offline verification, generate a topic-appropriate synthetic fixture with
+`scripts/generate_fixture_corpus.py --term <your_term>`, then use the
+[offline sequence](rendering_pipeline.md#run-the-offline-fixture-workflow) with
+that fixture in place of the bundled one. For new live evidence, run
+`uv run --no-sync python scripts/01_literature_search.py --clear-corpus --no-resume`
+in a disposable checkout, then run the downstream analysis and manuscript stages.
 
 ## The single control surface: `docs/manuscript/config.yaml`
 
@@ -144,8 +108,8 @@ that reads `pending` until stage 03 runs.
 
 The opt-in stages `07_literature_evaluation.py`, `08_deep_research_dispatch.py`,
 `09_export_bibliography.py`, and the full-text chain `11_fulltext_download.py` →
-`10_reproducibility_assessment.py` sit outside this allowlist; see
-[`../scripts/README.md`](../scripts/README.md).
+`10_reproducibility_assessment.py` have distinct inputs and output contracts; see
+[script inventory](scripts.md).
 
 De-duplication is by `canonical_id` with priority **normalized-DOI > PMID > arXiv > S2 >
 OpenAlex > title-digest**; DOIs are case/prefix-folded so the same paper from two
@@ -176,16 +140,9 @@ references a token that `compute_variables` doesn't produce, injection **raises 
 
 ## Verify your fork
 
-```bash
-# tests (90% project gate, zero mocks)
-uv run pytest projects/working/my_review/tests/ --cov=projects/working/my_review/src --cov-fail-under=90 -q
-
-# no unresolved tokens leaked into the rendered manuscript
-grep -ro '{{[A-Z_0-9]*}}' projects/working/my_review/output/manuscript/ ; echo "exit=$? (1 = none found = good)"
-
-# drift checker (global template integrity)
-uv run python scripts/audit/check_template_drift.py
-```
+Run the [native coverage gate](quickstart.md) and the [render and validation
+stages](rendering_pipeline.md#render-and-validate). Review the generated manuscript
+and the analysis reports together before publishing a live run.
 
 ## Common friction points (and fixes)
 
@@ -202,9 +159,9 @@ uv run python scripts/audit/check_template_drift.py
 ## Sibling exemplars
 
 If your work isn't a literature review, fork a closer sibling instead:
-[`template_code_project`](../../template_code_project) (code-centric, algorithm + analysis),
-[`template_prose_project`](../../template_prose_project) (prose review, no algorithm),
-or [`template_textbook`](../../template_textbook) (book-length manuscript).
+[`template_code_project`](https://github.com/docxology/template_code_project) (code-centric, algorithm + analysis),
+[`template_prose_project`](https://github.com/docxology/template_prose_project) (prose review, no algorithm),
+or [`template_textbook`](https://github.com/docxology/template_textbook) (book-length manuscript).
 
 ## See also
 

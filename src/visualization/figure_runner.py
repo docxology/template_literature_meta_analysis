@@ -81,6 +81,31 @@ FIGURE_CAPTIONS = {
 }
 
 
+FIGURE_ALT_TEXT = {
+    "field_summary.png": "Horizontal bars showing counts by research subfield, with the corpus total in the title.",
+    "subfield_distribution.png": "Pie chart with one slice per subfield and a combined slice for small categories.",
+    "growth_curve.png": "Annual publication counts as bars and cumulative counts as a line over time.",
+    "subfield_timeline.png": "Stacked publication counts by year, with a series for each subfield.",
+    "citation_network.png": "Papers as nodes and citations as directed edges, with node colors identifying communities.",
+    "degree_distribution.png": "Histogram of citation network in-degrees, with lines marking the mean and median.",
+    "hypothesis_dashboard.png": "Horizontal bars for the configured hypothesis scores, with a vertical line at zero.",
+    "word_cloud.png": "Terms from the topic model sized by their weights.",
+    "topic_term_bars.png": "A panel of horizontal bars per topic, with lengths encoding term weights.",
+    "pca_embeddings.png": "Scatter plot of documents projected into two principal components and grouped by subfield.",
+    "term_heatmap.png": "Grid of terms and research subfields with color encoding the mean TF-IDF weight.",
+    "dendrogram.png": "Branching tree of subfield centroids with merge heights indicating dissimilarity.",
+    "cooccurrence_matrix.png": "Symmetric grid with color encoding how often pairs of terms appear together.",
+    "assertion_breakdown.png": "Counts of assertion types grouped by hypothesis.",
+    "assertion_summary.png": "Counts of the extracted nanopublication assertions.",
+    "evidence_timeline.png": "Time-series chart tracing the accumulated evidence score for each hypothesis.",
+    "citation_distribution.png": "Histogram of citation counts across corpus papers.",
+    "top_venues.png": "Horizontal bars ranking venues by the number of corpus papers.",
+    "author_productivity.png": "Horizontal bars ranking authors by their corpus publication count.",
+    "similarity_heatmap.png": "Horizontal bars ranking document pairs by cosine similarity.",
+    "entity_bar_chart.png": "Horizontal bars ranking named entities by occurrence in corpus text.",
+}
+
+
 def _load_json(path: Path, logger: logging.Logger) -> Any:
     if not path.exists():
         logger.warning("%s not found, skipping", path)
@@ -273,10 +298,13 @@ def _register_figures(generated_paths: list[str], output_dir: Path, logger: logg
             f"Figure showing {filename.replace('.png', '').replace('_', ' ')}.",
         )
         label = f"fig:{path.stem}"
-        if not figure_manager.get_figure(label):
+        alt_text = FIGURE_ALT_TEXT.get(filename, caption)
+        existing = figure_manager.get_figure(label)
+        if existing is None or existing.metadata.get("alt_text") != alt_text:
             figure_manager.register_figure(
                 filename=filename,
                 caption=caption,
                 label=label,
                 generated_by="04_generate_figures.py",
+                metadata={**(existing.metadata if existing else {}), "alt_text": alt_text},
             )

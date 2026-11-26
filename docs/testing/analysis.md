@@ -18,4 +18,4 @@ uv run pytest tests/analysis/ -v
 uv run pytest tests/analysis/test_subfield_classifier.py -v
 ```
 
-See **[AGENTS.md](AGENTS.md)** for detailed module logic verification protocols.
+See **[AGENTS.md](../../tests/analysis/AGENTS.md)** for detailed module logic verification protocols.

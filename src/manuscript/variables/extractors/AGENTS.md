@@ -5,4 +5,4 @@ Per-metric extractor functions consumed by the manuscript variable injector.
 ## See also
 
 - [`../AGENTS.md`](../AGENTS.md)
-- [`README.md`](README.md)
+- [`README.md`](../../../../docs/implementation/manuscript-variables-extractors.md)

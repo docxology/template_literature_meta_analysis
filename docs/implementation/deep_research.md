@@ -50,4 +50,4 @@ For a live run (outside CI), set `OPENAI_API_KEY` / `GEMINI_API_KEY` and extend
 the adapter to call `DeepResearchClient.submit_and_wait_many(...)`; this
 exemplar deliberately keeps the default path offline and deterministic.
 
-See [AGENTS.md](AGENTS.md) for agent-specific invariants.
+See [AGENTS.md](../../src/deep_research/AGENTS.md) for agent-specific invariants.

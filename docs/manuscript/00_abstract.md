@@ -27,6 +27,10 @@ Abstract coverage stands at {{ABSTRACT_COVERAGE_PCT}}\%, {{OA_PCT}}\% of records
 LLM-gated knowledge-graph stage scores the {{N_HYPOTHESES}} hypotheses explored against
 the evidence. This run produced {{NUM_FIGURES}} publication-quality figures.
 
+The bundled synthetic corpus exercises the workflow offline. Its generated
+counts describe fixture records. Interpretation of a live run depends on a
+recorded retrieval snapshot and its provenance.
+
 Every domain-specific value in this manuscript — the search term, keyword set, engine
 roster, subfield taxonomy, and hypotheses — is injected from a single configuration file
 and the pipeline's own outputs; re-targeting the configuration re-targets the entire
