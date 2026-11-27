@@ -76,8 +76,9 @@ High-level query helpers over `KnowledgeGraph`: `query_papers_by_hypothesis`,
 
 ## Scoring Formula
 
-See `manuscript/07_appendix_technical.md §Citation-Weighted Hypothesis Scoring Formula` and
-`hypothesis.py:score_hypothesis()`. Key edge case: `score = 0` is ambiguous — it can mean no
-assertions OR perfectly balanced support/contradict. Always report assertion counts alongside scores.
+The [manuscript's assertion model](../manuscript/02d_methods_knowledge_graph.md#assertion-model)
+defines the citation-weighted formula. The [`score_hypothesis()` implementation](../../src/knowledge_graph/hypothesis.py)
+returns zero when there are no matching assertions, when their total weight is zero, or when
+supporting and contradicting weights are equal. Report assertion counts alongside scores.
 
 See [AGENTS.md](../../src/knowledge_graph/AGENTS.md) for agent-specific constraints.
