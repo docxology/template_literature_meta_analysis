@@ -2,8 +2,9 @@
 
 Variable computation and injection for the literature meta-analysis manuscript.
 Reads pipeline output JSONs and produces a `dict[str, str]` of 127+ template variables
-that `scripts/05_inject_variables.py` substitutes into `{{VAR}}` placeholders in every
-`manuscript/*.md` file, writing rendered copies to `output/manuscript/`.
+that `scripts/05_inject_variables.py` substitutes into `{{VAR}}` placeholders in
+the paper sources under [`docs/manuscript/`](../manuscript/README.md). It writes
+hydrated copies to `output/manuscript/`.
 
 ## Module
 
@@ -24,7 +25,8 @@ Reads from `output_dir/` (or `output_dir/data/`):
 | `tfidf_data.json` | `NUM_VOCAB_FEATURES`, `NUM_TOPICS` |
 | `output/figures/` | `NUM_FIGURES` |
 
-Hypothesis short aliases H1–H8 map to full IDs. This project's `manuscript/config.yaml`
+Hypothesis short aliases H1–H8 map to full IDs. This project's
+[`docs/manuscript/config.yaml`](../manuscript/config.yaml)
 `hypothesis_definitions` only names H1–H6 (modafinil-specific: Wakefulness Efficacy,
 Cognitive Enhancement, Low Abuse Liability, Dopaminergic Mechanism, Off-label Psychiatric
 Utility, Tolerability); H7/H8 fall back to the domain-neutral `STANDARD_HYPOTHESES` IDs in
