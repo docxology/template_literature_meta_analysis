@@ -15,7 +15,7 @@ License: CC-BY-4.0
 | [`01_introduction.md`](01_introduction.md) | Introduction | — | — |
 | [`02_methods_overview.md`](02_methods_overview.md) | Methods overview | `{{CORPUS_SIZE}}` | Stage 5 |
 | [`02a_methods_retrieval.md`](02a_methods_retrieval.md) | Stage 1: retrieval | `{{CORPUS_SIZE}}`, `{{YEAR_START}}`, `{{YEAR_END}}` | Stage 1 + 5 |
-| [`02b_methods_extraction.md`](02b_methods_extraction.md) | Stage 2: LLM extraction | `{{TOTAL_ASSERTIONS}}` | Stage 3 + 5 |
+| [`02b_methods_extraction.md`](02b_methods_extraction.md) | Stage 3: LLM extraction | `{{TOTAL_ASSERTIONS}}` | Stage 3 + 5 |
 | [`02c_methods_bibliometrics.md`](02c_methods_bibliometrics.md) | Stage 2: bibliometrics | `{{NUM_TOPICS}}`, `{{NUM_VOCAB_FEATURES}}` | Stage 2 + 5 |
 | [`02d_methods_knowledge_graph.md`](02d_methods_knowledge_graph.md) | Stage 3: knowledge graph | `{{TOTAL_ASSERTIONS}}`, `{{CITATION_RESOLUTION_PCT}}` | Stage 3 + 5 |
 | [`02e_methods_viz_injection.md`](02e_methods_viz_injection.md) | Stages 4–5 | `{{NUM_FIGURES}}` | Stage 4 + 5 |
